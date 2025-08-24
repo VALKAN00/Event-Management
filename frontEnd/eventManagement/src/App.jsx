@@ -4,6 +4,7 @@ import Header from "./global/Header";
 import Sidebar from "./global/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import ManageEvents from "./pages/ManageEvents";
+import EventDetails from "./components/ManageEvents/EventDetails";
 import Booking from "./pages/Booking";
 import AttendeeInsights from "./pages/AttendeeInsights";
 import Analytics from "./pages/Analytics";
@@ -38,6 +39,7 @@ function AppContent() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/manage-events" element={<ManageEvents />} />
+            <Route path="/event-details" element={<EventDetails />} />
             <Route path="/booking-tickets" element={<Booking />} />
             <Route path="/attendee-insights" element={<AttendeeInsights />} />
             <Route path="/analytics-reports" element={<Analytics />} />

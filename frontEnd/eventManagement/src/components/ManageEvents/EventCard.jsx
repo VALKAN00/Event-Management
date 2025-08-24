@@ -1,4 +1,12 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function EventCard({ event }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate('/event-details', { state: { event } });
+  };
+
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 w-90">
       {/* Header with icon, title and menu */}
@@ -67,7 +75,10 @@ export default function EventCard({ event }) {
           </div>
           
           {/* Arrow Button */}
-          <button className="cursor-pointer w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <button 
+            onClick={handleViewDetails}
+            className="cursor-pointer w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+          >
             <img src="/assets/ManageEvent/Back Arrow.svg" alt="Arrow" />
           </button>
         </div>
