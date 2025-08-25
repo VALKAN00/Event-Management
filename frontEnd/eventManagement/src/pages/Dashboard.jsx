@@ -11,15 +11,15 @@ const icon3 = "/assets/dashboard/Transaction.svg";
 
 export default function Dashboard() {
   return (
-    <div className="Dashboard ml-8">
+    <div className="Dashboard ml-8 h-full">
       {/* Main Grid Container */}
-      <div className="grid grid-cols-12 gap-4 h-full mb-4">
+      <div className="grid grid-cols-12 gap-4 h-full p-4">
         
         {/* Left Content Area - spans 9 columns */}
-        <div className="col-span-9">
+        <div className="col-span-9 flex flex-col h-full">
           
           {/* Top Row - Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4 flex-shrink-0">
             <NormalCard
               icon={icon1}
               title="EVENTS"
@@ -43,29 +43,31 @@ export default function Dashboard() {
           </div>
 
           {/* Middle Row - Charts */}
-          <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="grid grid-cols-5 gap-4 h-90  flex-shrink-0">
             {/* Net Sales Chart - spans 3 columns */}
-            <div className="col-span-3">
+            <div className="col-span-3 h-full">
               <NetSalesChart />
             </div>
             
             {/* Customer Engagement Chart - spans 2 columns */}
-            <div className="col-span-2">
+            <div className="col-span-2 h-full">
               <CustomerEngagementChart />
             </div>
           </div>
 
           {/* Bottom Row - Latest Event */}
-          <div className="grid grid-cols-1">
+          <div className="flex-1 min-h-0">
             <LatestEventHeatMap />
           </div>
           
         </div>
 
         {/* Right Sidebar - spans 3 columns */}
-        <div className="col-span-3">
-          <div className="space-y-4">
+        <div className="col-span-3 h-full flex flex-col">
+          <div className="flex-1 mb-4">
             <UpComing />
+          </div>
+          <div className="flex-1">
             <Notifications />
           </div>
         </div>
