@@ -5,9 +5,9 @@ import AttendeeAges from "../components/Attendee_Insights/AttendeeAges";
 
 export default function AttendeeInsights() {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-[#F2F2F2] min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white flex items-center justify-between p-6 border-b border-gray-200 mr-6 ml-6 mt-5 rounded-xl">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
             <svg
@@ -30,7 +30,7 @@ export default function AttendeeInsights() {
 
         <div className="flex items-center gap-4">
           {/* Attendees Count */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-500">
             <svg
               width="16"
               height="16"
@@ -49,7 +49,7 @@ export default function AttendeeInsights() {
           </div>
 
           {/* Filter Button */}
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-500 rounded-lg bg-white hover:bg-gray-50 transition-colors">
             <svg
               width="16"
               height="16"
@@ -88,7 +88,7 @@ export default function AttendeeInsights() {
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 w-64 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-64 text-black border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <svg
               width="16"
