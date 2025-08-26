@@ -1,6 +1,10 @@
 import EventCard from "../components/ManageEvents/EventCard";
 
+import { useNavigate } from "react-router-dom";
+
 export default function ManageEvents() {
+  const navigate = useNavigate();
+
   // Sample event data with different icons and details
   const events = [
     {
@@ -197,6 +201,7 @@ export default function ManageEvents() {
 
             {/* Attendee Insights Button */}
             <button
+              onClick={() => navigate('/attendee-insights')}
               className="cursor-pointer flex items-center gap-2 px-4 py-2 border-2 border-orange-400 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
               style={{ borderRadius: "15px", height: "46px" }}
             >

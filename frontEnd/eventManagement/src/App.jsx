@@ -7,6 +7,7 @@ import ManageEvents from "./pages/ManageEvents";
 import EventDetails from "./components/ManageEvents/EventDetails";
 import Booking from "./pages/Booking";
 import AttendeeInsights from "./pages/AttendeeInsights";
+import SingleAttendeeInsights from "./pages/SingleAttendeeInsights";
 import Analytics from "./pages/Analytics";
 import ContactSupport from "./pages/ContactSupport";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -42,7 +43,8 @@ function AppContent() {
             <Route path="/event-details" element={<EventDetails />} />
             <Route path="/booking-tickets" element={<Booking />} />
             <Route path="/attendee-insights" element={<AttendeeInsights />} />
-            <Route path="/analytics-reports" element={<Analytics />} />
+            <Route path="/Single_Attendee_Insights" element={<SingleAttendeeInsights />} />
+            <Route path="/reports-dashboard" element={<Analytics />} />
             <Route path="/contact-support" element={<ContactSupport />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<Settings />} />

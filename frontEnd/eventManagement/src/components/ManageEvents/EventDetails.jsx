@@ -394,7 +394,10 @@ export default function EventDetails() {
                 <button className="cursor-pointer flex-1 px-6 py-2 bg-[#CF730A] text-white rounded-lg font-medium hover:bg-[#ac5e05] transition-colors text-sm">
                   EDIT
                 </button>
-                <button className="cursor-pointer flex-1 px-6 py-2 bg-[#1A6291] text-white rounded-lg font-medium hover:bg-[#175680] transition-colors text-sm">
+                <button 
+                  onClick={() => navigate('/Single_Attendee_Insights', { state: { event: eventData } })}
+                  className="cursor-pointer flex-1 px-6 py-2 bg-[#1A6291] text-white rounded-lg font-medium hover:bg-[#175680] transition-colors text-sm"
+                >
                   Attendee Insights
                 </button>
               </div>

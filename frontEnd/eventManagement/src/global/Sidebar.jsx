@@ -126,7 +126,7 @@ export default function Sidebar() {
                             <MenuItem
                                 icon="/assets/sidebar/Statistics.png"
                                 label="Analytics & Reports"
-                                path="/analytics-reports"
+                                path="/reports-dashboard"
                             />
                         </div>
                     )}
