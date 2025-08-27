@@ -1,8 +1,21 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getCurrentUser } from '../api/authAPI';
 
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        try {
+            // Get current user data
+            const user = getCurrentUser();
+            setCurrentUser(user);
+        } catch (error) {
+            console.error('Error getting current user:', error);
+            setCurrentUser(null);
+        }
+    }, []);
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -18,15 +31,35 @@ export default function Header() {
         <div className="bg-[#111111] text-white px-6 py-3 flex items-center justify-between" style={{width:"100%", height:"80px",borderRadius:"20px"}}>
             {/* Left side - User Info */}
             <div className="flex items-center gap-3">
-                <img 
-                    src="/assets/header/Avatar.png" 
-                    alt="User Avatar" 
-                    className="w-10 h-10 rounded-full object-cover"
-                />
-                <div className="flex flex-col">
-                    <h2 className="text-lg font-semibold leading-tight">Welcome Rusiru De Silva</h2>
-                    <p className="text-sm text-gray-300 leading-tight">System Administrator</p>
-                </div>
+                {currentUser ? (
+                    <>
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm font-medium">
+                                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                            </span>
+                        </div>
+                        <div className="flex flex-col">
+                            <h2 className="text-lg font-semibold leading-tight">
+                                Welcome {currentUser.name || 'User'}
+                            </h2>
+                            <div className="flex items-center gap-2">
+                                    {currentUser.role === 'admin' ? 'Admin' : 'User'}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <img 
+                            src="/assets/header/Avatar.png" 
+                            alt="User Avatar" 
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="flex flex-col">
+                            <h2 className="text-lg font-semibold leading-tight">Welcome Guest</h2>
+                            <p className="text-sm text-gray-300 leading-tight">Please login</p>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Right side - Search and Icons */}

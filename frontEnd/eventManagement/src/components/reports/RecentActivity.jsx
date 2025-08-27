@@ -68,7 +68,7 @@ const RecentActivity = ({ data, loading }) => {
 
   // Transform recent bookings into activity items
   const activities = data?.recentBookings?.map(booking => ({
-    id: booking._id,
+    id: `booking-${booking._id}`,
     type: 'booking',
     title: `New booking for ${booking.event?.name}`,
     description: `${booking.user?.name} booked ${booking.seats?.length || 1} ticket(s)`,
@@ -79,7 +79,7 @@ const RecentActivity = ({ data, loading }) => {
 
   // Add upcoming events as activities
   const upcomingEventActivities = data?.upcomingEvents?.map(event => ({
-    id: event._id,
+    id: `event-${event._id}`,
     type: 'event',
     title: `Upcoming: ${event.name}`,
     description: `${event.venue?.name}, ${event.venue?.city}`,

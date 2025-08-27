@@ -1,5 +1,5 @@
 // API service for bookings
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5004/api';
 
 // Get authentication token (you'll need to implement this based on your auth system)
 const getAuthToken = () => {

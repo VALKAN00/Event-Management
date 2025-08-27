@@ -105,7 +105,7 @@ const createEvent = asyncHandler(async (req, res) => {
   req.body.organizer = req.user.id;
 
   // Generate seat map if not provided
-  if (!req.body.seatConfiguration.seatMap) {
+  if (!req.body.seatConfiguration || !req.body.seatConfiguration.seatMap) {
     const totalSeats = req.body.venue.capacity;
     const seatMap = [];
     

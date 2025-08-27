@@ -15,12 +15,31 @@ import Settings from "./pages/Settings";
 import Marketing from "./pages/Marketing";
 import EventCategories from "./pages/EventCategories";
 import ManageUsers from "./pages/ManageUsers";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function AppContent() {
   const location = useLocation();
   
   // Check if current route is Dashboard (/ or /dashboard)
   const isDashboardPage = location.pathname === "/" || location.pathname === "/dashboard";
+  
+  // Check if current route is an auth page
+  const isAuthPage = ['/login', '/register', '/forgot-password'].includes(location.pathname);
+
+  // If it's an auth page, render without sidebar and header
+  if (isAuthPage) {
+    return (
+      <div className="App">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        </Routes>
+      </div>
+    );
+  }
 
   return (
     <div className="App flex justify-between" style={{ width: "100%" }}>
@@ -37,6 +56,12 @@ function AppContent() {
         )}
         <div className="Pages">
           <Routes>
+            {/* Authentication Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            
+            {/* Main Application Routes */}
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/manage-events" element={<ManageEvents />} />
@@ -51,14 +76,6 @@ function AppContent() {
             <Route path="/marketing" element={<Marketing />} />
             <Route path="/event-categories" element={<EventCategories />} />
             <Route path="/manage-users" element={<ManageUsers />} />
-            <Route path="/logout" element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">Logout</h1>
-                <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <p className="text-gray-600">Logout functionality will be implemented here.</p>
-                </div>
-              </div>
-            } />
           </Routes>
         </div>
       </div>

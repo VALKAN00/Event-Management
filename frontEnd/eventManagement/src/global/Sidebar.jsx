@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import authAPI from '../api/authAPI';
+import LogoutModal from '../components/auth/LogoutModal';
+import QuickEventModal from '../components/sidebar/QuickEventModal';
+import Toast from '../components/sidebar/Toast';
 
 export default function Sidebar() {
     const navigate = useNavigate();
@@ -10,6 +14,10 @@ export default function Sidebar() {
         additionalFeatures: false,
         accountManagement: false
     });
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showQuickEventModal, setShowQuickEventModal] = useState(false);
+    const [logoutLoading, setLogoutLoading] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const toggleSection = (section) => {
         setOpenSections(prev => ({
@@ -22,6 +30,45 @@ export default function Sidebar() {
         navigate(path);
     };
 
+    const handleLogoutConfirm = async () => {
+        try {
+            setLogoutLoading(true);
+            // Call the logout API
+            await authAPI.logout();
+            // Navigate to login page
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even if API call fails, clear local storage and redirect
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/login');
+        } finally {
+            setLogoutLoading(false);
+            setShowLogoutModal(false);
+        }
+    };
+
+    const handleLogoutCancel = () => {
+        setShowLogoutModal(false);
+    };
+
+    const handleQuickEventClick = () => {
+        setShowQuickEventModal(true);
+    };
+
+    const handleQuickEventSuccess = () => {
+        // Show success message
+        setToast({
+            message: 'Event created successfully! 🎉',
+            type: 'success'
+        });
+        // Optionally navigate to manage events page after a delay
+        setTimeout(() => {
+            navigate('/manage-events');
+        }, 2000);
+    };
+
     const isActive = (path) => {
         if (path === '/dashboard') {
             return location.pathname === '/' || location.pathname === '/dashboard';
@@ -29,20 +76,26 @@ export default function Sidebar() {
         return location.pathname === path;
     };
 
-    const MenuItem = ({ icon, label, path, hasNotification = false }) => (
-        <button
-            onClick={() => handleItemClick(path)}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200 hover:bg-gray-800 ${
-                isActive(path) ? 'bg-gray-800 border-r-2 border-green-500' : ''
-            }`}
-        >
-            <img src={icon} alt={label} className="w-5 h-5" />
-            <span className="text-sm text-white">{label}</span>
-            {hasNotification && (
-                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-2 h-2"></span>
-            )}
-        </button>
-    );
+    const MenuItem = ({ icon, label, path, hasNotification = false }) => {
+        const handleClick = () => {
+            handleItemClick(path);
+        };
+
+        return (
+            <button
+                onClick={handleClick}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200 hover:bg-gray-800 ${
+                    isActive(path) ? 'bg-gray-800 border-r-2 border-green-500' : ''
+                }`}
+            >
+                <img src={icon} alt={label} className="w-5 h-5" />
+                <span className="text-sm text-white">{label}</span>
+                {hasNotification && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-2 h-2"></span>
+                )}
+            </button>
+        );
+    };
 
     const SectionHeader = ({ title, isOpen, onToggle }) => (
         <button
@@ -62,9 +115,9 @@ export default function Sidebar() {
     );
 
     return (
-        <div className="bg-[#111111] text-white w-80 h-screen flex flex-col">
+        <div className="bg-[#111111] text-white w-80 min-h-screen flex flex-col">
             {/* Logo Section */}
-            <div className="p-6 border-b border-gray-700">
+            <div className="p-6 border-b border-gray-700 flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <img 
                         src="/assets/sidebar/logo.png" 
@@ -80,8 +133,11 @@ export default function Sidebar() {
             </div>
 
             {/* Quick Add Button */}
-            <div className="p-4">
-                <button className="cursor-pointer w-full bg-[#282828] hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg flex items-center gap-3 transition-colors">
+            <div className="p-4 flex-shrink-0">
+                <button 
+                    onClick={handleQuickEventClick}
+                    className="cursor-pointer w-full bg-[#282828] hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg flex items-center gap-3 transition-colors"
+                >
                     <div className=" bg-[#C1FF72] flex items-center justify-center"style={{width:"36px", height:"36px", borderRadius:"10px"}}>
                         <span className="text-black text-lg">+</span>
                     </div>
@@ -93,9 +149,9 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation Sections */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 flex flex-col">
                 {/* Main Navigation */}
-                <div className="border-b border-gray-700">
+                <div className="border-b border-gray-700 flex-shrink-0">
                     <SectionHeader
                         title="Main Navigation"
                         isOpen={openSections.mainNavigation}
@@ -133,7 +189,7 @@ export default function Sidebar() {
                 </div>
 
                 {/* Support & Management */}
-                <div className="border-b border-gray-700">
+                <div className="border-b border-gray-700 flex-shrink-0">
                     <SectionHeader
                         title="Support & Management"
                         isOpen={openSections.supportManagement}
@@ -162,7 +218,7 @@ export default function Sidebar() {
                 </div>
 
                 {/* Additional Features */}
-                <div className="border-b border-gray-700">
+                <div className="border-b border-gray-700 flex-shrink-0">
                     <SectionHeader
                         title="Additional Features"
                         isOpen={openSections.additionalFeatures}
@@ -185,7 +241,7 @@ export default function Sidebar() {
                 </div>
 
                 {/* Account Management */}
-                <div>
+                <div className="flex-shrink-0">
                     <SectionHeader
                         title="Account Management"
                         isOpen={openSections.accountManagement}
@@ -198,15 +254,45 @@ export default function Sidebar() {
                                 label="Manage Users"
                                 path="/manage-users"
                             />
-                            <MenuItem
-                                icon="/assets/sidebar/Logout.png"
-                                label="Logout"
-                                path="/logout"
-                            />
+                            <button
+                                onClick={() => setShowLogoutModal(true)}
+                                className="flex items-center gap-4 p-3 w-full text-left rounded-lg hover:bg-red-600 transition-colors group"
+                            >
+                                <img 
+                                    src="/assets/sidebar/Logout.png" 
+                                    alt="Logout" 
+                                    className="w-5 h-5"
+                                />
+                                <span className="text-sm text-red-300">Logout</span>
+                            </button>
                         </div>
                     )}
                 </div>
             </div>
+            
+            {/* Logout Modal */}
+            <LogoutModal
+                isOpen={showLogoutModal}
+                onClose={handleLogoutCancel}
+                onConfirm={handleLogoutConfirm}
+                loading={logoutLoading}
+            />
+
+            {/* Quick Event Modal */}
+            <QuickEventModal
+                isOpen={showQuickEventModal}
+                onClose={() => setShowQuickEventModal(false)}
+                onSuccess={handleQuickEventSuccess}
+            />
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </div>
     );
 }
