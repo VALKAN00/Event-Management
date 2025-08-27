@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { isAuthenticated } from '../api/authAPI';
+import { isAuthenticated } from '../../api/authAPI';
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();

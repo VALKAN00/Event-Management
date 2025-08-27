@@ -39,7 +39,18 @@ const eventsAPI = {
 
   // Get event by ID
   getEventById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`);
+    const token = localStorage.getItem('token');
+    const headers = {};
+    
+    // Add auth header if token exists (for private events or enhanced details)
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+      headers: headers
+    });
+    
     const data = await response.json();
     
     if (!response.ok) {

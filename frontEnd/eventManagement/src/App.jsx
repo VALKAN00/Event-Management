@@ -1,9 +1,12 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Header from "./global/Header";
 import Sidebar from "./global/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import ManageEvents from "./pages/ManageEvents";
+import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./components/ManageEvents/EventDetails";
 import Booking from "./pages/Booking";
 import AttendeeInsights from "./pages/AttendeeInsights";
@@ -62,20 +65,81 @@ function AppContent() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* Main Application Routes */}
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/manage-events" element={<ManageEvents />} />
-            <Route path="/event-details" element={<EventDetails />} />
-            <Route path="/booking-tickets" element={<Booking />} />
-            <Route path="/attendee-insights" element={<AttendeeInsights />} />
-            <Route path="/Single_Attendee_Insights" element={<SingleAttendeeInsights />} />
-            <Route path="/reports-dashboard" element={<Analytics />} />
-            <Route path="/contact-support" element={<ContactSupport />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/marketing" element={<Marketing />} />
-            <Route path="/event-categories" element={<EventCategories />} />
-            <Route path="/manage-users" element={<ManageUsers />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-events" element={
+              <ProtectedRoute>
+                <ManageEvents />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-event" element={
+              <ProtectedRoute>
+                <CreateEvent />
+              </ProtectedRoute>
+            } />
+            <Route path="/event-details/:id?" element={
+              <ProtectedRoute>
+                <EventDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/booking-tickets" element={
+              <ProtectedRoute>
+                <Booking />
+              </ProtectedRoute>
+            } />
+            <Route path="/attendee-insights" element={
+              <ProtectedRoute>
+                <AttendeeInsights />
+              </ProtectedRoute>
+            } />
+            <Route path="/Single_Attendee_Insights" element={
+              <ProtectedRoute>
+                <SingleAttendeeInsights />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports-dashboard" element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/contact-support" element={
+              <ProtectedRoute>
+                <ContactSupport />
+              </ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/marketing" element={
+              <ProtectedRoute>
+                <Marketing />
+              </ProtectedRoute>
+            } />
+            <Route path="/event-categories" element={
+              <ProtectedRoute>
+                <EventCategories />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-users" element={
+              <ProtectedRoute>
+                <ManageUsers />
+              </ProtectedRoute>
+            } />
           </Routes>
         </div>
       </div>
@@ -85,9 +149,11 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 
