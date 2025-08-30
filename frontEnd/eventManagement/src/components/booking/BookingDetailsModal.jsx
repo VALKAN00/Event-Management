@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
+const BookingDetailsModal = ({ booking, isOpen, onClose, onCancel, onCheckIn, onConfirm }) => {
   if (!isOpen || !booking) return null;
 
   const formatDate = (dateString) => {
@@ -218,7 +218,36 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <div className="flex justify-between items-center p-6 border-t border-gray-200">
+          <div className="flex gap-3">
+            {booking.status === 'pending' && onConfirm && (
+              <button
+                onClick={() => onConfirm(booking._id)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              >
+                Confirm Booking
+              </button>
+            )}
+            
+            {booking.status === 'pending' && onCancel && (
+              <button
+                onClick={() => onCancel(booking._id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                Cancel Booking
+              </button>
+            )}
+            
+            {booking.status === 'confirmed' && !booking.checkInDetails?.isCheckedIn && onCheckIn && (
+              <button
+                onClick={() => onCheckIn(booking._id)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              >
+                Check In
+              </button>
+            )}
+          </div>
+          
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"

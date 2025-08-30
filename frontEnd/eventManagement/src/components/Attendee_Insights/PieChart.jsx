@@ -1,12 +1,22 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
-const AttendeeInterestsChart = () => {
-  const data = [
-    { name: '18 - 24 Years', value: 2345, percentage: 57.8, color: '#8b5cf6' },
-    { name: '25 - 34 Years', value: 1342, percentage: 33.1, color: '#dc2626' },
-    { name: '35 - 44 Years', value: 245, percentage: 6.0, color: '#10b981' },
-    { name: '44 + Years', value: 124, percentage: 3.1, color: '#f59e0b' },
+const AttendeeInterestsChart = ({ data = [] }) => {
+  // Transform backend data to chart format with colors
+  const chartData = data.length > 0 ? data.map((item, index) => ({
+    name: item.ageRange || item.range || `Age Group ${index + 1}`,
+    value: item.count || item.value || 0,
+    percentage: item.percentage || 0,
+    color: [
+      '#8b5cf6', '#dc2626', '#10b981', '#f59e0b', '#3b82f6'
+    ][index % 5]
+  })) : [
+    // Fallback data when loading or no data
+    { name: '18-24', value: 320, percentage: 25.6, color: '#8b5cf6' },
+    { name: '25-34', value: 450, percentage: 36, color: '#dc2626' },
+    { name: '35-44', value: 280, percentage: 22.4, color: '#10b981' },
+    { name: '45-54', value: 150, percentage: 12, color: '#f59e0b' },
+    { name: '55+', value: 50, percentage: 4, color: '#3b82f6' }
   ];
 
   const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, value, payload }) => {
@@ -68,7 +78,7 @@ const AttendeeInterestsChart = () => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="40%"
               outerRadius={70}
@@ -76,7 +86,7 @@ const AttendeeInterestsChart = () => {
               label={renderCustomizedLabel}
               labelLine={false}
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>

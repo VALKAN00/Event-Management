@@ -1,5 +1,5 @@
 // API service for bookings
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5004/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Get authentication token (you'll need to implement this based on your auth system)
 const getAuthToken = () => {
@@ -61,11 +61,12 @@ export const bookingAPI = {
     return handleResponse(response);
   },
 
-  // Confirm booking (admin)
-  confirmBooking: async (bookingId) => {
+  // Confirm booking (payment)
+  confirmBooking: async (bookingId, paymentDetails = {}) => {
     const response = await fetch(`${BASE_URL}/bookings/${bookingId}/confirm`, {
       method: 'PATCH',
-      headers: getHeaders()
+      headers: getHeaders(),
+      body: JSON.stringify(paymentDetails)
     });
     return handleResponse(response);
   },

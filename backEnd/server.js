@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 // Import routes
@@ -17,17 +19,38 @@ const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
 
 const app = express();
+const server = createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173', 
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
+      'http://localhost:5178',
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
+    credentials: true
+  }
+});
+
+// Make io available globally for controllers
+global.io = io;
 
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-});
-app.use(limiter);
+// Rate limiting - temporarily disabled for development
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limit each IP to 100 requests per windowMs
+//   message: 'Too many requests from this IP, please try again later.'
+// });
+// app.use(limiter);
 
 // CORS configuration
 app.use(cors({
@@ -37,6 +60,8 @@ app.use(cors({
     'http://localhost:5174',
     'http://localhost:5175',
     'http://localhost:5176',
+    'http://localhost:5177',
+    'http://localhost:5178',
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true
@@ -77,8 +102,39 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log(`🔌 User connected: ${socket.id}`);
+  
+  // Join user to a room for targeted updates
+  socket.on('join-dashboard', () => {
+    socket.join('dashboard');
+    console.log(`📊 User ${socket.id} joined dashboard room`);
+  });
+
+  socket.on('join-users', () => {
+    socket.join('users');
+    console.log(`👥 User ${socket.id} joined users room`);
+  });
+
+  socket.on('join-events', () => {
+    socket.join('events');
+    console.log(`🎪 User ${socket.id} joined events room`);
+  });
+
+  socket.on('join-bookings', () => {
+    socket.join('bookings');
+    console.log(`📅 User ${socket.id} joined bookings room`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`🔌 User disconnected: ${socket.id}`);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  console.log(`🔌 Socket.IO enabled for real-time updates`);
 });
 
 module.exports = app;

@@ -101,36 +101,122 @@ const getEvent = asyncHandler(async (req, res) => {
 // @route   POST /api/events
 // @access  Private/Admin
 const createEvent = asyncHandler(async (req, res) => {
-  // Add organizer to req.body
-  req.body.organizer = req.user.id;
+  console.log('Creating event with data:', JSON.stringify(req.body, null, 2));
+  console.log('User from token:', req.user);
 
-  // Generate seat map if not provided
-  if (!req.body.seatConfiguration || !req.body.seatConfiguration.seatMap) {
-    const totalSeats = req.body.venue.capacity;
-    const seatMap = [];
+  try {
+    // Add organizer to req.body
+    req.body.organizer = req.user.id;
+
+    // Validate required fields
+    const requiredFields = ['name', 'description', 'date'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
     
-    for (let i = 1; i <= totalSeats; i++) {
-      seatMap.push({
-        seatNumber: `S${i.toString().padStart(3, '0')}`,
-        row: `R${Math.ceil(i / 10)}`,
-        section: 'General',
-        status: 'available'
-      });
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
+      return errorResponse(res, `Missing required fields: ${missingFields.join(', ')}`, 400);
     }
 
-    req.body.seatConfiguration = {
-      totalSeats,
-      availableSeats: totalSeats,
-      bookedSeats: 0,
-      reservedSeats: 0,
-      seatMap
-    };
+    // Validate venue object
+    if (!req.body.venue || !req.body.venue.name || !req.body.venue.address || !req.body.venue.city || !req.body.venue.capacity) {
+      console.log('Invalid venue data:', req.body.venue);
+      return errorResponse(res, 'Complete venue information is required (name, address, city, capacity)', 400);
+    }
+
+    // Validate time object
+    if (!req.body.time || !req.body.time.start || !req.body.time.end) {
+      console.log('Invalid time data:', req.body.time);
+      return errorResponse(res, 'Start time and end time are required', 400);
+    }
+
+    // Validate pricing object
+    if (!req.body.pricing || req.body.pricing.ticketPrice === undefined || req.body.pricing.ticketPrice < 0) {
+      console.log('Invalid pricing data:', req.body.pricing);
+      return errorResponse(res, 'Valid ticket price is required', 400);
+    }
+
+    // Validate date is in the future
+    const eventDate = new Date(req.body.date);
+    if (eventDate <= new Date()) {
+      console.log('Event date is in the past:', eventDate);
+      return errorResponse(res, 'Event date must be in the future', 400);
+    }
+
+    // Convert venue capacity to number
+    req.body.venue.capacity = parseInt(req.body.venue.capacity);
+    
+    if (isNaN(req.body.venue.capacity) || req.body.venue.capacity < 1) {
+      console.log('Invalid venue capacity:', req.body.venue.capacity);
+      return errorResponse(res, 'Venue capacity must be a positive number', 400);
+    }
+
+    // Generate seat map if not provided
+    if (!req.body.seatConfiguration || !req.body.seatConfiguration.seatMap) {
+      const totalSeats = req.body.venue.capacity;
+      const seatMap = [];
+      
+      for (let i = 1; i <= totalSeats; i++) {
+        seatMap.push({
+          seatNumber: `S${i.toString().padStart(3, '0')}`,
+          row: `R${Math.ceil(i / 10)}`,
+          section: 'General',
+          status: 'available'
+        });
+      }
+
+      req.body.seatConfiguration = {
+        totalSeats,
+        availableSeats: totalSeats,
+        bookedSeats: 0,
+        reservedSeats: 0,
+        seatMap
+      };
+    }
+
+    console.log('Final event data before creation:', JSON.stringify(req.body, null, 2));
+
+    const event = await Event.create(req.body);
+    await event.populate('organizer', 'name email');
+
+    console.log('Event created successfully:', event._id);
+    
+    // Emit real-time update for new event
+    if (global.io) {
+      global.io.to('dashboard').emit('eventCreated', {
+        type: 'created',
+        event: {
+          _id: event._id,
+          name: event.name,
+          date: event.date,
+          venue: event.venue,
+          organizer: event.organizer,
+          pricing: event.pricing,
+          category: event.category,
+          status: event.status
+        }
+      });
+      
+      global.io.to('events').emit('eventCreated', {
+        type: 'created',
+        event: event
+      });
+    }
+    
+    successResponse(res, event, 'Event created successfully', 201);
+
+  } catch (error) {
+    console.error('Event creation error:', error);
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      console.log('Validation errors:', validationErrors);
+      return errorResponse(res, `Validation errors: ${validationErrors.join(', ')}`, 400);
+    }
+    
+    throw error; // Re-throw for asyncHandler to catch
   }
-
-  const event = await Event.create(req.body);
-  await event.populate('organizer', 'name email');
-
-  successResponse(res, event, 'Event created successfully', 201);
 });
 
 // @desc    Update event
@@ -173,6 +259,28 @@ const updateEvent = asyncHandler(async (req, res) => {
     new: true,
     runValidators: true
   }).populate('organizer', 'name email');
+
+  // Emit real-time update for event modification
+  if (global.io) {
+    global.io.to('dashboard').emit('eventUpdated', {
+      type: 'updated',
+      event: {
+        _id: event._id,
+        name: event.name,
+        date: event.date,
+        venue: event.venue,
+        organizer: event.organizer,
+        pricing: event.pricing,
+        category: event.category,
+        status: event.status
+      }
+    });
+    
+    global.io.to('events').emit('eventUpdated', {
+      type: 'updated',
+      event: event
+    });
+  }
 
   successResponse(res, event, 'Event updated successfully');
 });
@@ -351,6 +459,29 @@ const getEventAnalytics = asyncHandler(async (req, res) => {
   successResponse(res, analytics, 'Event analytics retrieved successfully');
 });
 
+// @desc    Get upcoming events
+// @route   GET /api/events/upcoming
+// @access  Public
+const getUpcomingEvents = asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+  const currentDate = new Date();
+
+  // Find events that are upcoming (date is in the future)
+  const upcomingEvents = await Event.find({
+    isActive: true,
+    date: { $gte: currentDate },
+    status: { $in: ['upcoming', 'active'] }
+  })
+    .populate('organizer', 'name email')
+    .sort({ date: 1 }) // Sort by date ascending (earliest first)
+    .limit(parseInt(limit));
+
+  successResponse(res, {
+    events: upcomingEvents,
+    count: upcomingEvents.length
+  }, 'Upcoming events retrieved successfully');
+});
+
 module.exports = {
   getEvents,
   getEvent,
@@ -362,5 +493,6 @@ module.exports = {
   getBookmarkedEvents,
   updateEventStatus,
   getEventAnalytics,
-  searchEvents
+  searchEvents,
+  getUpcomingEvents
 };

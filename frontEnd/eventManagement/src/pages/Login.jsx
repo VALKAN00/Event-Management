@@ -252,8 +252,8 @@ const Login = () => {
                 type="button"
                 onClick={() => {
                   setFormData({
-                    email: 'admin@eventx.com',
-                    password: 'Admin123!'
+                    email: 'valkanAdmin@gmail.com',
+                    password: '123Abdo#'
                   });
                 }}
                 className="px-4 py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-150 ease-in-out"
@@ -264,8 +264,8 @@ const Login = () => {
                 type="button"
                 onClick={() => {
                   setFormData({
-                    email: 'user@eventx.com',
-                    password: 'User123!'
+                    email: 'valkan@gmail.com',
+                    password: '123Abdo#'
                   });
                 }}
                 className="px-4 py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-150 ease-in-out"

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BookingFilters = ({ filters, onFilterChange, onSearch }) => {
+const BookingFilters = ({ filters, onFilterChange, loading }) => {
   const statusOptions = [
     { value: '', label: 'All Status' },
     { value: 'pending', label: 'Pending' },
@@ -92,7 +92,7 @@ const BookingFilters = ({ filters, onFilterChange, onSearch }) => {
               Sort By
             </label>
             <select
-              value={filters.sortBy || 'bookingDate-desc'}
+              value={`${filters.sortBy || 'bookingDate'}-${filters.sortOrder || 'desc'}`}
               onChange={(e) => onFilterChange('sortBy', e.target.value)}
               className="py-1 px-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -111,12 +111,6 @@ const BookingFilters = ({ filters, onFilterChange, onSearch }) => {
             className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors text-sm"
           >
             Clear Filters
-          </button>
-          <button
-            onClick={onSearch}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
-          >
-            Apply Filters
           </button>
         </div>
       </div>

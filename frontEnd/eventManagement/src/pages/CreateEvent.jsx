@@ -119,8 +119,12 @@ export default function CreateEvent() {
       }
 
       // Validate date is in the future (backend requires this)
-      const eventDate = new Date(formData.date + 'T00:00:00.000Z'); // Ensure UTC parsing
+      const eventDate = new Date(formData.date);
       const now = new Date();
+      
+      // Reset time components for accurate date comparison
+      eventDate.setHours(0, 0, 0, 0);
+      now.setHours(0, 0, 0, 0);
       
       if (eventDate <= now) {
         throw new Error('Event date must be in the future');
@@ -169,6 +173,12 @@ export default function CreateEvent() {
       console.log('Submitting event data:', eventData); // Debug log
       console.log('User object:', user); // Debug log
       console.log('Form data before submission:', formData); // Debug log
+      console.log('Event date validation:', {
+        formDataDate: formData.date,
+        eventDate: eventDate,
+        now: now,
+        isValid: eventDate > now
+      });
 
       const response = await eventsAPI.createEvent(eventData);
       console.log('Create event response:', response); // Debug log

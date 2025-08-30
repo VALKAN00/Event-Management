@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
 import { getCurrentUser } from "../api/authAPI";
+import { usersAPI } from "../api/usersAPI";
 import UserFilters from "../components/ManageUsers/UserFilters";
 import UserTable from "../components/ManageUsers/UserTable";
 import UserCard from "../components/ManageUsers/UserCard";
 import UserModal from "../components/ManageUsers/UserModal";
 import DeleteConfirmModal from "../components/ManageUsers/DeleteConfirmModal";
+import socketService from "../services/socketService";
 
 export default function ManageUsers() {
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("table"); // 'table' or 'grid'
-
-  // Modal states
   const [showUserModal, setShowUserModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [modalMode, setModalMode] = useState("edit"); // 'edit' or 'create'
+  const [modalMode, setModalMode] = useState("create");
+  const [viewMode, setViewMode] = useState("table");
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
 
-  // Filter states
+  // Filters state
   const [filters, setFilters] = useState({
     search: "",
     role: "",
@@ -29,104 +30,173 @@ export default function ManageUsers() {
   // Message state
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Initialize with demo data
+  // Initialize component with authentication check and data loading
   useEffect(() => {
     const initializeData = async () => {
-      setLoading(true);
+      try {
+        setLoading(true);
+        
+        // Get current user for authentication
+        const userData = await getCurrentUser();
+        setCurrentUser(userData);
 
-      // Get current user
-      const user = getCurrentUser();
-      setCurrentUser(user);
-
-      // Demo users data
-      const demoUsers = [
-        {
-          id: "1",
-          name: "Admin User",
-          email: "admin@eventx.com",
-          role: "admin",
-          isActive: true,
-          createdAt: "2024-01-15T10:00:00Z",
-          lastLogin: "2024-08-27T09:30:00Z",
-          profileDetails: {
-            phone: "+1 (555) 123-4567",
-            bio: "System administrator with full access to all features.",
-          },
-        },
-        {
-          id: "2",
-          name: "John Doe",
-          email: "john.doe@example.com",
-          role: "user",
-          isActive: true,
-          createdAt: "2024-02-20T14:30:00Z",
-          lastLogin: "2024-08-26T16:45:00Z",
-          profileDetails: {
-            phone: "+1 (555) 234-5678",
-            bio: "Event organizer and marketing specialist.",
-          },
-        },
-        {
-          id: "3",
-          name: "Jane Smith",
-          email: "jane.smith@example.com",
-          role: "user",
-          isActive: false,
-          createdAt: "2024-03-10T11:15:00Z",
-          lastLogin: "2024-07-15T12:20:00Z",
-          profileDetails: {
-            phone: "+1 (555) 345-6789",
-            bio: "Former event coordinator.",
-          },
-        },
-        {
-          id: "4",
-          name: "Mike Johnson",
-          email: "mike.johnson@example.com",
-          role: "admin",
-          isActive: true,
-          createdAt: "2024-01-25T09:45:00Z",
-          lastLogin: "2024-08-27T08:15:00Z",
-          profileDetails: {
-            phone: "+1 (555) 456-7890",
-            bio: "Technical administrator and system maintainer.",
-          },
-        },
-        {
-          id: "5",
-          name: "Sarah Wilson",
-          email: "sarah.wilson@example.com",
-          role: "user",
-          isActive: true,
-          createdAt: "2024-04-05T13:20:00Z",
-          lastLogin: "2024-08-25T14:30:00Z",
-          profileDetails: {
-            phone: "+1 (555) 567-8901",
-            bio: "Event attendee and community member.",
-          },
-        },
-        {
-          id: "6",
-          name: "David Brown",
-          email: "david.brown@example.com",
-          role: "user",
-          isActive: true,
-          createdAt: "2024-05-12T16:10:00Z",
-          lastLogin: null,
-          profileDetails: {
-            phone: "+1 (555) 678-9012",
-            bio: "New user, recently joined the platform.",
-          },
-        },
-      ];
-
-      setUsers(demoUsers);
-      setFilteredUsers(demoUsers);
-      setLoading(false);
+        // If user is admin, fetch users from backend
+        if (userData?.role === 'admin') {
+          await fetchUsers();
+        }
+      } catch (error) {
+        console.error('Error initializing data:', error);
+        showMessage("error", "Failed to load user data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     initializeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Socket.IO real-time updates
+  useEffect(() => {
+    if (currentUser?.role !== 'admin') return;
+
+    // Connect to Socket.IO and join users room
+    socketService.connect();
+    socketService.joinRoom('users');
+
+    // Track connection status
+    const updateConnectionStatus = () => {
+      setIsSocketConnected(socketService.isConnected);
+    };
+
+    // Set up connection status listeners
+    socketService.on('connect', updateConnectionStatus);
+    socketService.on('disconnect', updateConnectionStatus);
+
+    // Initial status update
+    updateConnectionStatus();
+
+    // Set up real-time event listeners
+    const handleUserCreated = (data) => {
+      console.log('🆕 New user created:', data.user);
+      setUsers(prevUsers => {
+        const newUser = {
+          id: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          isActive: data.user.isActive,
+          createdAt: data.user.createdAt,
+          lastLogin: data.user.lastLogin
+        };
+        
+        const updatedUsers = [newUser, ...prevUsers];
+        setFilteredUsers(updatedUsers);
+        return updatedUsers;
+      });
+    };
+
+    const handleUserUpdated = (data) => {
+      console.log('📝 User updated:', data.user);
+      setUsers(prevUsers => {
+        const updatedUsers = prevUsers.map(user => 
+          user.id === data.user._id 
+            ? {
+                ...user,
+                name: data.user.name,
+                email: data.user.email,
+                role: data.user.role,
+                isActive: data.user.isActive
+              }
+            : user
+        );
+        setFilteredUsers(updatedUsers);
+        return updatedUsers;
+      });
+    };
+
+    const handleUserDeleted = (data) => {
+      console.log('🗑️ User deleted:', data.userId);
+      setUsers(prevUsers => {
+        const updatedUsers = prevUsers.filter(user => user.id !== data.userId);
+        setFilteredUsers(updatedUsers);
+        return updatedUsers;
+      });
+    };
+
+    // Register event listeners
+    socketService.onUserCreated(handleUserCreated);
+    socketService.onUserUpdated(handleUserUpdated);
+    socketService.onUserDeleted(handleUserDeleted);
+
+    // Cleanup on unmount
+    return () => {
+      socketService.off('connect', updateConnectionStatus);
+      socketService.off('disconnect', updateConnectionStatus);
+      socketService.off('userCreated', handleUserCreated);
+      socketService.off('userUpdated', handleUserUpdated);
+      socketService.off('userDeleted', handleUserDeleted);
+      socketService.disconnect();
+    };
+  }, [currentUser]);
+
+  // Fetch users from backend
+  const fetchUsers = async (params = {}) => {
+    try {
+      if (!params.silent) {
+        setLoading(true);
+      }
+      
+      const response = await usersAPI.getAllUsers({
+        page: 1,
+        limit: 100, // Get all users for now
+        search: params.search || filters.search,
+        role: params.role || filters.role,
+        isActive: params.isActive !== undefined ? params.isActive : 
+                 (filters.status === 'active' ? true : 
+                  filters.status === 'inactive' ? false : undefined)
+      });
+
+      if (response.success) {
+        const usersData = response.data.users.map(user => ({
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          lastLogin: user.lastLogin
+        }));
+        
+        setUsers(usersData);
+        setFilteredUsers(usersData);
+        
+        // Show success message only for manual refreshes
+        if (!params.silent && params.showMessage) {
+          showMessage("success", "Users updated successfully!");
+        }
+      } else {
+        throw new Error(response.message || 'Failed to fetch users');
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      
+      // Only show error for non-silent refreshes
+      if (!params.silent) {
+        showMessage("error", "Failed to load users from server. Please try again.");
+      }
+      
+      // Keep current users or use empty array
+      if (users.length === 0) {
+        setUsers([]);
+        setFilteredUsers([]);
+      }
+    } finally {
+      if (!params.silent) {
+        setLoading(false);
+      }
+    }
+  };
 
   // Filter users based on search and filters
   useEffect(() => {
@@ -203,18 +273,29 @@ export default function ManageUsers() {
 
   const handleToggleUserStatus = async (userId) => {
     try {
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, isActive: !user.isActive } : user
-        )
-      );
-
       const user = users.find((u) => u.id === userId);
-      showMessage(
-        "success",
-        `User ${user.isActive ? "deactivated" : "activated"} successfully!`
-      );
-    } catch {
+      const newStatus = !user.isActive;
+
+      // Call backend API
+      const response = await usersAPI.toggleUserStatus(userId, newStatus);
+      
+      if (response.success) {
+        // Update local state
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, isActive: newStatus } : user
+          )
+        );
+
+        showMessage(
+          "success",
+          `User ${newStatus ? "activated" : "deactivated"} successfully!`
+        );
+      } else {
+        throw new Error(response.message || 'Failed to update user status');
+      }
+    } catch (error) {
+      console.error('Error toggling user status:', error);
       showMessage("error", "Failed to update user status. Please try again.");
     }
   };
@@ -222,52 +303,64 @@ export default function ManageUsers() {
   const handleSaveUser = async (userData, mode) => {
     try {
       if (mode === "create") {
-        const newUser = {
-          id: Date.now().toString(),
+        // Call backend API to create user
+        const response = await usersAPI.createUser({
           ...userData,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          lastLogin: null,
-          profileDetails: {
-            phone: userData.phone,
-            bio: userData.bio,
-          },
-        };
+          password: userData.password || 'TempPassword123!'
+        });
 
-        setUsers((prev) => [...prev, newUser]);
-        showMessage("success", "User created successfully!");
+        if (response.success) {
+          // Refresh users list
+          await fetchUsers();
+          showMessage("success", "User created successfully!");
+        } else {
+          throw new Error(response.message || 'Failed to create user');
+        }
       } else {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user.id === selectedUser.id
-              ? {
-                  ...user,
-                  name: userData.name,
-                  email: userData.email,
-                  role: userData.role,
-                  profileDetails: {
-                    ...user.profileDetails,
-                    phone: userData.phone,
-                    bio: userData.bio,
-                  },
-                }
-              : user
-          )
-        );
-        showMessage("success", "User updated successfully!");
+        // Call backend API to update user
+        const response = await usersAPI.updateUser(selectedUser.id, userData);
+
+        if (response.success) {
+          // Update local state
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === selectedUser.id
+                ? {
+                    ...user,
+                    name: userData.name,
+                    email: userData.email,
+                    role: userData.role
+                  }
+                : user
+            )
+          );
+          showMessage("success", "User updated successfully!");
+        } else {
+          throw new Error(response.message || 'Failed to update user');
+        }
       }
-    } catch {
-      throw new Error("Failed to save user. Please try again.");
+    } catch (error) {
+      console.error('Error saving user:', error);
+      throw new Error(error.message || "Failed to save user. Please try again.");
     }
   };
 
   const handleConfirmDelete = async (userId) => {
     try {
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-      setShowDeleteModal(false);
-      setSelectedUser(null);
-      showMessage("success", "User deleted successfully!");
-    } catch {
+      // Call backend API to delete user
+      const response = await usersAPI.deleteUser(userId);
+
+      if (response.success) {
+        // Remove from local state
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+        showMessage("success", "User deleted successfully!");
+      } else {
+        throw new Error(response.message || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
       showMessage("error", "Failed to delete user. Please try again.");
     }
   };
@@ -308,9 +401,26 @@ export default function ManageUsers() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8 bg-[#111111] p-3 rounded-lg">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Manage Users</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-white">Manage Users</h1>
+              {/* Socket.IO connection status indicator */}
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  isSocketConnected 
+                    ? 'bg-green-500 animate-pulse' 
+                    : 'bg-red-500'
+                }`}></div>
+                <span className={`text-xs font-medium ${
+                  isSocketConnected 
+                    ? 'text-green-400' 
+                    : 'text-red-400'
+                }`}>
+                  {isSocketConnected ? 'Real-time Connected' : 'Connecting...'}
+                </span>
+              </div>
+            </div>
             <p className="text-gray-400">
-              Manage user accounts, roles, and permissions
+              Manage user accounts, roles, and permissions • Real-time updates via Socket.IO
             </p>
           </div>
 

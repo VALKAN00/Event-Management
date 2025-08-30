@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import Marketing from "./pages/Marketing";
 import EventCategories from "./pages/EventCategories";
 import ManageUsers from "./pages/ManageUsers";
+import AllUpcomingEvents from "./pages/AllUpcomingEvents";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -138,6 +139,11 @@ function AppContent() {
             <Route path="/manage-users" element={
               <ProtectedRoute>
                 <ManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/upcoming-events" element={
+              <ProtectedRoute>
+                <AllUpcomingEvents />
               </ProtectedRoute>
             } />
           </Routes>

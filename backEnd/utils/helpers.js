@@ -225,6 +225,7 @@ const getDateRange = (period) => {
   let startDate = new Date();
 
   switch (period) {
+    case 'day':
     case 'today':
       startDate.setHours(0, 0, 0, 0);
       break;
@@ -233,6 +234,9 @@ const getDateRange = (period) => {
       break;
     case 'month':
       startDate.setMonth(endDate.getMonth() - 1);
+      break;
+    case 'quarter':
+      startDate.setMonth(endDate.getMonth() - 3);
       break;
     case 'year':
       startDate.setFullYear(endDate.getFullYear() - 1);

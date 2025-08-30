@@ -5,120 +5,16 @@ import AttendeeReports from '../components/reports/AttendeeReports';
 import EventReports from '../components/reports/EventReports';
 import RecentActivity from '../components/reports/RecentActivity';
 import ReportFilters from '../components/reports/ReportFilters';
-// import reportsAPI from '../api/reportsAPI';
-
-// Mock data - Replace with actual API calls
-const mockDashboardData = {
-  overview: {
-    totalEvents: 24,
-    totalBookings: 1248,
-    totalRevenue: 2450000,
-    totalTicketsSold: 3456,
-    averageTicketPrice: 2850
-  },
-  eventStatusBreakdown: [
-    { _id: 'upcoming', count: 8 },
-    { _id: 'ongoing', count: 2 },
-    { _id: 'completed', count: 14 }
-  ],
-  recentBookings: [
-    {
-      _id: '1',
-      user: { name: 'John Doe', email: 'john@example.com' },
-      event: { name: 'Tech Conference 2025', venue: { city: 'Colombo' } },
-      bookingDate: '2025-01-20T10:30:00Z',
-      totalAmount: 5000,
-      status: 'confirmed',
-      seats: ['A1', 'A2']
-    },
-    {
-      _id: '2',
-      user: { name: 'Jane Smith', email: 'jane@example.com' },
-      event: { name: 'Music Festival', venue: { city: 'Kandy' } },
-      bookingDate: '2025-01-19T15:45:00Z',
-      totalAmount: 3500,
-      status: 'pending',
-      seats: ['B10']
-    }
-  ],
-  upcomingEvents: [
-    {
-      _id: '1',
-      name: 'Digital Marketing Summit',
-      date: '2025-02-15T09:00:00Z',
-      venue: { name: 'Convention Center', city: 'Colombo' },
-      analytics: { totalBookings: 45 }
-    },
-    {
-      _id: '2',
-      name: 'Food & Wine Festival',
-      date: '2025-02-20T17:00:00Z',
-      venue: { name: 'Galle Face Green', city: 'Colombo' },
-      analytics: { totalBookings: 78 }
-    }
-  ]
-};
-
-const mockRevenueData = {
-  summary: {
-    totalRevenue: 2450000,
-    previousPeriodRevenue: 2100000,
-    growthPercentage: 16.67,
-    totalBookings: 1248,
-    totalTickets: 3456
-  },
-  dailyRevenue: [
-    { _id: { year: 2025, month: 1, day: 15 }, dailyRevenue: 125000, dailyBookings: 45, dailyTickets: 120 },
-    { _id: { year: 2025, month: 1, day: 16 }, dailyRevenue: 89000, dailyBookings: 32, dailyTickets: 89 },
-    { _id: { year: 2025, month: 1, day: 17 }, dailyRevenue: 156000, dailyBookings: 56, dailyTickets: 167 },
-    { _id: { year: 2025, month: 1, day: 18 }, dailyRevenue: 98000, dailyBookings: 38, dailyTickets: 102 },
-    { _id: { year: 2025, month: 1, day: 19 }, dailyRevenue: 134000, dailyBookings: 49, dailyTickets: 145 },
-    { _id: { year: 2025, month: 1, day: 20 }, dailyRevenue: 178000, dailyBookings: 67, dailyTickets: 189 }
-  ],
-  revenueByEvent: [
-    { _id: '1', eventName: 'Tech Conference 2025', totalRevenue: 456000, totalBookings: 234, totalTickets: 567, averageTicketPrice: 2850 },
-    { _id: '2', eventName: 'Music Festival Summer', totalRevenue: 389000, totalBookings: 189, totalTickets: 445, averageTicketPrice: 2650 },
-    { _id: '3', eventName: 'Digital Marketing Summit', totalRevenue: 234000, totalBookings: 123, totalTickets: 278, averageTicketPrice: 3200 },
-    { _id: '4', eventName: 'Food & Wine Festival', totalRevenue: 178000, totalBookings: 89, totalTickets: 198, averageTicketPrice: 2890 }
-  ]
-};
-
-const mockAttendeeData = {
-  totalAttendees: 3456,
-  uniqueAttendees: 2890,
-  repeatAttendees: 566,
-  averageAge: 28.5,
-  ageGroups: [
-    { _id: '18-25', count: 1234, percentage: 35.7 },
-    { _id: '26-35', count: 1567, percentage: 45.3 },
-    { _id: '36-45', count: 456, percentage: 13.2 },
-    { _id: '46+', count: 199, percentage: 5.8 }
-  ],
-  genderBreakdown: [
-    { _id: 'Male', count: 1890, percentage: 54.7 },
-    { _id: 'Female', count: 1456, percentage: 42.1 },
-    { _id: 'Other', count: 110, percentage: 3.2 }
-  ],
-  topLocations: [
-    { _id: 'Colombo', count: 1456, percentage: 42.1 },
-    { _id: 'Kandy', count: 789, percentage: 22.8 },
-    { _id: 'Galle', count: 456, percentage: 13.2 },
-    { _id: 'Jaffna', count: 234, percentage: 6.8 },
-    { _id: 'Negombo', count: 189, percentage: 5.5 }
-  ],
-  topInterests: [
-    { _id: 'Technology', count: 1234, percentage: 35.7 },
-    { _id: 'Music', count: 987, percentage: 28.6 },
-    { _id: 'Food & Drink', count: 567, percentage: 16.4 },
-    { _id: 'Business', count: 456, percentage: 13.2 },
-    { _id: 'Arts', count: 212, percentage: 6.1 }
-  ]
-};
+import analyticsAPI from '../api/reportsAPI-hybrid';
+import { useAuth } from '../context/AuthContext';
 
 export default function Analytics() {
-  // State management
+  const { user } = useAuth();
+  
+  // State management (hooks must be at the top)
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     period: 'month',
     startDate: '',
@@ -132,66 +28,114 @@ export default function Analytics() {
   const [attendeeData, setAttendeeData] = useState(null);
   const [eventPerformanceData, setEventPerformanceData] = useState(null);
 
+  // Helper function to create filter params
+  const createFilterParams = React.useCallback(() => {
+    const params = { period: filters.period };
+    if (filters.startDate) params.startDate = filters.startDate;
+    if (filters.endDate) params.endDate = filters.endDate;
+    return params;
+  }, [filters.period, filters.startDate, filters.endDate]);
+
   // Fetch data based on active tab and filters
   useEffect(() => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const params = createFilterParams();
 
-        // Mock API calls - Replace with actual API calls
         switch (activeTab) {
-          case 'overview':
-            setDashboardData(mockDashboardData);
+          case 'overview': {
+            const dashboardResponse = await analyticsAPI.getDashboardStats(params);
+            setDashboardData(dashboardResponse.data);
+            
+            // Also fetch revenue data for the overview chart
+            const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+            setRevenueData(revenueResponse.data);
             break;
-          case 'revenue':
-            setRevenueData(mockRevenueData);
+          }
+          case 'revenue': {
+            const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+            setRevenueData(revenueResponse.data);
             break;
-          case 'attendees':
-            setAttendeeData(mockAttendeeData);
+          }
+          case 'attendees': {
+            const attendeeResponse = await analyticsAPI.getAttendeeInsights(params);
+            setAttendeeData(attendeeResponse.data);
             break;
-          case 'events':
-            setEventPerformanceData(mockRevenueData);
+          }
+          case 'events': {
+            const eventResponse = await analyticsAPI.getEventPerformance(params);
+            setEventPerformanceData(eventResponse.data);
             break;
-          default:
-            setDashboardData(mockDashboardData);
+          }
+          default: {
+            const defaultResponse = await analyticsAPI.getDashboardStats(params);
+            setDashboardData(defaultResponse.data);
+            
+            // Also fetch revenue data for the overview chart
+            const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+            setRevenueData(revenueResponse.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching analytics data:', error);
+        setError(error.message || 'Failed to fetch analytics data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [activeTab, filters.period, filters.startDate, filters.endDate]);
+  }, [activeTab, createFilterParams, user]);
 
   const refreshData = async () => {
+    if (!user) return;
+    
     setLoading(true);
+    setError(null);
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const params = createFilterParams();
 
-      // Mock API calls - Replace with actual API calls
       switch (activeTab) {
-        case 'overview':
-          setDashboardData(mockDashboardData);
+        case 'overview': {
+          const dashboardResponse = await analyticsAPI.getDashboardStats(params);
+          setDashboardData(dashboardResponse.data);
+          
+          // Also fetch revenue data for the overview chart
+          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+          setRevenueData(revenueResponse.data);
           break;
-        case 'revenue':
-          setRevenueData(mockRevenueData);
+        }
+        case 'revenue': {
+          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+          setRevenueData(revenueResponse.data);
           break;
-        case 'attendees':
-          setAttendeeData(mockAttendeeData);
+        }
+        case 'attendees': {
+          const attendeeResponse = await analyticsAPI.getAttendeeInsights(params);
+          setAttendeeData(attendeeResponse.data);
           break;
-        case 'events':
-          setEventPerformanceData(mockRevenueData);
+        }
+        case 'events': {
+          const eventResponse = await analyticsAPI.getEventPerformance(params);
+          setEventPerformanceData(eventResponse.data);
           break;
-        default:
-          setDashboardData(mockDashboardData);
+        }
+        default: {
+          const defaultResponse = await analyticsAPI.getDashboardStats(params);
+          setDashboardData(defaultResponse.data);
+          
+          // Also fetch revenue data for the overview chart
+          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
+          setRevenueData(revenueResponse.data);
+        }
       }
     } catch (error) {
       console.error('Error fetching analytics data:', error);
+      setError(error.message || 'Failed to refresh analytics data');
     } finally {
       setLoading(false);
     }
@@ -205,15 +149,31 @@ export default function Analytics() {
   // Handle export
   const handleExport = async (type) => {
     try {
-      // TODO: Implement actual export functionality
-      console.log('Exporting:', type, 'with filters:', filters);
-      alert(`Exporting ${type} report...`);
-      // await analyticsAPI.exportAnalytics(type, filters);
+      const params = createFilterParams();
+      await analyticsAPI.exportAnalytics(type, params);
     } catch (error) {
       console.error('Export error:', error);
-      alert('Export failed. Please try again.');
+      setError(error.message || 'Export failed. Please try again.');
     }
   };
+
+  // Check if user is authenticated
+  if (!user) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-8">Please log in to access analytics dashboard.</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { key: 'overview', label: 'Overview', icon: '📊' },
@@ -250,6 +210,23 @@ export default function Analytics() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error Loading Analytics Data</h3>
+                <p className="mt-2 text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Filters */}
         <ReportFilters
           filters={filters}
@@ -286,7 +263,7 @@ export default function Analytics() {
               <DashboardOverview stats={dashboardData} loading={loading} />
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <RevenueChart data={mockRevenueData} loading={loading} />
+                  <RevenueChart data={revenueData} loading={loading} />
                 </div>
                 <div>
                   <RecentActivity data={dashboardData} loading={loading} />

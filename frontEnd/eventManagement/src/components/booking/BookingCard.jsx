@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BookingCard = ({ booking, onView, onCancel, onCheckIn }) => {
+const BookingCard = ({ booking, onSelect, onCancel, onCheckIn, onConfirm }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
@@ -80,13 +80,22 @@ const BookingCard = ({ booking, onView, onCancel, onCheckIn }) => {
 
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => onView(booking)}
+          onClick={() => onSelect(booking)}
           className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
         >
           View Details
         </button>
         
-        {booking.status === 'pending' && (
+        {booking.status === 'pending' && onConfirm && (
+          <button
+            onClick={() => onConfirm(booking._id)}
+            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
+          >
+            Confirm Booking
+          </button>
+        )}
+        
+        {booking.status === 'pending' && onCancel && (
           <button
             onClick={() => onCancel(booking._id)}
             className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"

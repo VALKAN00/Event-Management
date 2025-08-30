@@ -13,7 +13,16 @@ const {
 // @route   POST /api/bookings
 // @access  Private
 const createBooking = asyncHandler(async (req, res) => {
-  const { eventId, seats, attendeeInfo } = req.body;
+  const { eventId, seats, attendeeInfo, paymentMethod, totalAmount } = req.body;
+
+  // Validate required fields
+  if (!eventId) {
+    return errorResponse(res, 'Event ID is required', 400);
+  }
+
+  if (!seats || !Array.isArray(seats) || seats.length === 0) {
+    return errorResponse(res, 'Seats information is required', 400);
+  }
 
   // Check if event exists and is available for booking
   const event = await Event.findById(eventId);
@@ -41,27 +50,35 @@ const createBooking = asyncHandler(async (req, res) => {
     return errorResponse(res, `Seats not available: ${unavailableSeats.join(', ')}`, 400);
   }
 
-  // Calculate total amount
-  const totalAmount = seats.length * event.pricing.ticketPrice;
+  // Calculate total amount (use provided amount or calculate from event pricing)
+  const calculatedTotal = seats.reduce((total, seat) => total + (seat.price || event.pricing.ticketPrice), 0);
+  const finalTotalAmount = totalAmount || calculatedTotal;
 
-  // Create booking
-  const booking = await Booking.create({
+  // Create booking data
+  const bookingData = {
     user: req.user.id,
     event: eventId,
     seats: seats.map(seat => ({
       seatNumber: seat.seatNumber,
       row: seat.row || 'General',
       section: seat.section || 'General',
-      price: event.pricing.ticketPrice
+      price: seat.price || event.pricing.ticketPrice
     })),
-    totalAmount,
-    currency: event.pricing.currency,
+    totalAmount: finalTotalAmount,
+    currency: event.pricing.currency || 'LKR',
     attendeeInfo: attendeeInfo || {
       name: req.user.name,
       email: req.user.email,
       phone: req.user.profileDetails?.phone
+    },
+    paymentDetails: {
+      method: paymentMethod || 'card',
+      paymentStatus: 'pending'
     }
-  });
+  };
+
+  // Create booking
+  const booking = await Booking.create(bookingData);
 
   // Book seats in event
   const bookedSeats = event.bookSeats(requestedSeatNumbers, req.user.id);
@@ -75,6 +92,26 @@ const createBooking = asyncHandler(async (req, res) => {
     { path: 'user', select: 'name email' },
     { path: 'event', select: 'name date venue.name venue.city time.start time.end' }
   ]);
+
+  // Emit real-time update for new booking
+  if (global.io) {
+    global.io.to('dashboard').emit('bookingCreated', {
+      type: 'created',
+      booking: {
+        _id: booking._id,
+        user: booking.user,
+        event: booking.event,
+        totalAmount: booking.totalAmount,
+        status: booking.status,
+        bookingDate: booking.bookingDate
+      }
+    });
+    
+    global.io.to('bookings').emit('bookingCreated', {
+      type: 'created',
+      booking: booking
+    });
+  }
 
   successResponse(res, booking, 'Booking created successfully', 201);
 });

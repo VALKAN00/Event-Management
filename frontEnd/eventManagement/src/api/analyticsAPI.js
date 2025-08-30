@@ -1,5 +1,5 @@
 // API service for analytics
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Get authentication token
 const getAuthToken = () => {
@@ -55,6 +55,16 @@ export const analyticsAPI = {
   // Get attendee insights
   getAttendeeInsights: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${BASE_URL}/analytics/test/attendees/insights?${queryString}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  // Get comprehensive attendee analytics
+  getAttendeeAnalytics: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
     const response = await fetch(`${BASE_URL}/analytics/attendees/insights?${queryString}`, {
       method: 'GET',
       headers: getHeaders()
@@ -65,9 +75,9 @@ export const analyticsAPI = {
   // Get location analytics
   getLocationAnalytics: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${BASE_URL}/analytics/attendees/locations?${queryString}`, {
+    const response = await fetch(`${BASE_URL}/analytics/test/attendees/locations?${queryString}`, {
       method: 'GET',
-      headers: getHeaders()
+      headers: { 'Content-Type': 'application/json' }
     });
     return handleResponse(response);
   },
@@ -75,9 +85,9 @@ export const analyticsAPI = {
   // Get interest analytics
   getInterestAnalytics: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${BASE_URL}/analytics/attendees/interests?${queryString}`, {
+    const response = await fetch(`${BASE_URL}/analytics/test/attendees/interests?${queryString}`, {
       method: 'GET',
-      headers: getHeaders()
+      headers: { 'Content-Type': 'application/json' }
     });
     return handleResponse(response);
   },
@@ -85,9 +95,9 @@ export const analyticsAPI = {
   // Get age group analytics
   getAgeGroupAnalytics: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${BASE_URL}/analytics/attendees/age-groups?${queryString}`, {
+    const response = await fetch(`${BASE_URL}/analytics/test/attendees/age-groups?${queryString}`, {
       method: 'GET',
-      headers: getHeaders()
+      headers: { 'Content-Type': 'application/json' }
     });
     return handleResponse(response);
   },
@@ -95,9 +105,9 @@ export const analyticsAPI = {
   // Get gender analytics
   getGenderAnalytics: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${BASE_URL}/analytics/attendees/gender?${queryString}`, {
+    const response = await fetch(`${BASE_URL}/analytics/test/attendees/gender?${queryString}`, {
       method: 'GET',
-      headers: getHeaders()
+      headers: { 'Content-Type': 'application/json' }
     });
     return handleResponse(response);
   },
@@ -106,6 +116,16 @@ export const analyticsAPI = {
   getSocialMediaReach: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(`${BASE_URL}/analytics/social-media?${queryString}`, {
+      method: 'GET',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get customer engagement data
+  getCustomerEngagement: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${BASE_URL}/analytics/customer-engagement?${queryString}`, {
       method: 'GET',
       headers: getHeaders()
     });

@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 
-const AttendeeLocationChart = () => {
+const AttendeeLocationChart = ({ data = [] }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const data = [
-    { location: '853', value: 853, percentage: '11.7%', color: '#3b82f6' },
-    { location: '743', value: 743, percentage: '10.2%', color: '#ef4444' },
-    { location: '763', value: 763, percentage: '10.5%', color: '#10b981' },
-    { location: '934', value: 934, percentage: '12.9%', color: '#8b5cf6' },
-    { location: '783', value: 783, percentage: '10.8%', color: '#1f2937' },
-    { location: '643', value: 643, percentage: '8.9%', color: '#f59e0b' },
-    { location: '687', value: 687, percentage: '9.5%', color: '#06b6d4' },
-    { location: '936', value: 936, percentage: '12.9%', color: '#84cc16' },
-    { location: '573', value: 573, percentage: '7.9%', color: '#6b7280' },
-    { location: '345', value: 345, percentage: '4.8%', color: '#ec4899' },
+  // Transform backend data to chart format with colors
+  const chartData = data.length > 0 ? data.map((item, index) => ({
+    location: item.city || item.location || `Location ${index + 1}`,
+    value: item.attendeeCount || item.count || 0,
+    percentage: `${item.percentage || 0}%`,
+    color: [
+      '#3b82f6', '#ef4444', '#10b981', '#8b5cf6', '#1f2937',
+      '#f59e0b', '#06b6d4', '#84cc16', '#6b7280', '#ec4899'
+    ][index % 10]
+  })) : [
+    // Fallback data when loading or no data
+    { location: 'Colombo', value: 450, percentage: '36%', color: '#3b82f6' },
+    { location: 'Kandy', value: 320, percentage: '26%', color: '#ef4444' },
+    { location: 'Galle', value: 280, percentage: '22%', color: '#10b981' },
+    { location: 'Jaffna', value: 200, percentage: '16%', color: '#8b5cf6' }
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -38,7 +42,7 @@ const AttendeeLocationChart = () => {
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
-            data={data} 
+            data={chartData} 
             margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
             barCategoryGap="30%"
           >
@@ -59,7 +63,7 @@ const AttendeeLocationChart = () => {
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#6b7280' }}
-              domain={[0, 1000]}
+              domain={[0, 'dataMax']}
               tickCount={6}
               tickFormatter={(value) => value.toString()}
             />
@@ -70,7 +74,7 @@ const AttendeeLocationChart = () => {
               onMouseEnter={(data, index) => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={entry.color}

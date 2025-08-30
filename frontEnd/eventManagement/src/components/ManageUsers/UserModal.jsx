@@ -5,8 +5,6 @@ export default function UserModal({ user, isOpen, onClose, onSave, mode = 'edit'
     name: '',
     email: '',
     role: 'user',
-    phone: '',
-    bio: '',
     password: '',
     confirmPassword: ''
   });
@@ -19,8 +17,6 @@ export default function UserModal({ user, isOpen, onClose, onSave, mode = 'edit'
         name: user.name || '',
         email: user.email || '',
         role: user.role || 'user',
-        phone: user.profileDetails?.phone || '',
-        bio: user.profileDetails?.bio || '',
         password: '',
         confirmPassword: ''
       });
@@ -29,8 +25,6 @@ export default function UserModal({ user, isOpen, onClose, onSave, mode = 'edit'
         name: '',
         email: '',
         role: 'user',
-        phone: '',
-        bio: '',
         password: '',
         confirmPassword: ''
       });
@@ -186,19 +180,6 @@ export default function UserModal({ user, isOpen, onClose, onSave, mode = 'edit'
                 <option value="admin">Administrator</option>
               </select>
             </div>
-
-            <div>
-              <label className="block text-white text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-                className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter phone number"
-              />
-            </div>
           </div>
 
           {/* Password Fields (only for new users) */}
@@ -241,20 +222,6 @@ export default function UserModal({ user, isOpen, onClose, onSave, mode = 'edit'
               </div>
             </div>
           )}
-
-          {/* Bio */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Bio
-            </label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              rows={3}
-              className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Tell us about this user..."
-            />
-          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">

@@ -192,9 +192,33 @@ const deleteUser = asyncHandler(async (req, res) => {
     // Deactivate instead of delete
     user.isActive = false;
     await user.save();
+    
+    // Emit real-time update
+    if (global.io) {
+      global.io.to('users').emit('userUpdated', {
+        type: 'deactivated',
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive
+        }
+      });
+    }
+    
     successResponse(res, null, 'User account deactivated (has associated bookings/events)');
   } else {
+    const deletedUserId = user._id;
     await User.findByIdAndDelete(req.params.id);
+    
+    // Emit real-time update
+    if (global.io) {
+      global.io.to('users').emit('userDeleted', {
+        userId: deletedUserId
+      });
+    }
+    
     successResponse(res, null, 'User deleted successfully');
   }
 });
@@ -303,6 +327,21 @@ const updateUserRole = asyncHandler(async (req, res) => {
   user.role = role;
   await user.save();
 
+    // Emit real-time update
+    if (global.io) {
+      console.log('🔄 Emitting userUpdated event for role change');
+      global.io.to('users').emit('userUpdated', {
+        type: 'roleChanged',
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive
+        }
+      });
+    }
+
   successResponse(res, user, `User role updated to ${role}`);
 });
 
@@ -324,6 +363,20 @@ const deactivateUser = asyncHandler(async (req, res) => {
   user.isActive = false;
   await user.save();
 
+  // Emit real-time update
+  if (global.io) {
+    global.io.to('users').emit('userUpdated', {
+      type: 'deactivated',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive
+      }
+    });
+  }
+
   successResponse(res, user, 'User account deactivated');
 });
 
@@ -342,6 +395,20 @@ const activateUser = asyncHandler(async (req, res) => {
   user.loginAttempts = 0;
   user.lockUntil = undefined;
   await user.save();
+
+  // Emit real-time update
+  if (global.io) {
+    global.io.to('users').emit('userUpdated', {
+      type: 'activated',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive
+      }
+    });
+  }
 
   successResponse(res, user, 'User account activated');
 });

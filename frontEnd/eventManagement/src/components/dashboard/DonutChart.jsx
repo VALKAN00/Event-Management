@@ -1,14 +1,50 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-const CustomerEngagementChart = () => {
-  const data = [
-    { name: 'Event- A', value: 450, percentage: 29.4, color: '#8b5cf6' },
-    { name: 'Event- B', value: 250, percentage: 16.3, color: '#3b82f6' },
-    { name: 'Event- C', value: 170, percentage: 11.1, color: '#f59e0b' },
-    { name: 'Event- D', value: 370, percentage: 24.2, color: '#10b981' },
-    { name: 'Event- E', value: 290, percentage: 19.0, color: '#ef4444' },
+const CustomerEngagementChart = ({ data = [], loading = false }) => {
+  // Diverse color palette for different events
+  const eventColors = [
+    '#8b5cf6', // Purple
+    '#3b82f6', // Blue
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#06b6d4', // Cyan
+    '#8b5cf6', // Violet
+    '#84cc16', // Lime
+    '#f97316', // Orange
+    '#ec4899', // Pink
+    '#6366f1', // Indigo
+    '#14b8a6'  // Teal
   ];
+
+  // Fallback data if no real data is provided
+  const fallbackData = [
+    { name: 'Event- A', value: 450, percentage: 29.4, color: eventColors[0] },
+    { name: 'Event- B', value: 250, percentage: 16.3, color: eventColors[1] },
+    { name: 'Event- C', value: 170, percentage: 11.1, color: eventColors[2] },
+    { name: 'Event- D', value: 370, percentage: 24.2, color: eventColors[3] },
+    { name: 'Event- E', value: 290, percentage: 19.0, color: eventColors[4] },
+  ];
+
+  // Process real data from backend
+  const processData = (backendData) => {
+    if (!backendData || backendData.length === 0) {
+      return fallbackData;
+    }
+
+    // Calculate total for percentages
+    const total = backendData.reduce((sum, item) => sum + (item.value || item.totalBookings || 0), 0);
+    
+    return backendData.map((item, index) => ({
+      name: item.name || item.eventName || `Event ${index + 1}`,
+      value: item.value || item.totalBookings || 0,
+      percentage: total > 0 ? ((item.value || item.totalBookings || 0) / total * 100).toFixed(1) : 0,
+      color: eventColors[index % eventColors.length]
+    }));
+  };
+
+  const chartData = processData(data);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -65,12 +101,18 @@ const CustomerEngagementChart = () => {
         Customer Engagement
       </h2>
 
-      {/* Chart */}
+      {loading ? (
+        <div className="flex items-center justify-center h-48">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <>
+          {/* Chart */}
       <div className="h-48 mb-3">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -80,7 +122,7 @@ const CustomerEngagementChart = () => {
               fill="#8884d8"
               dataKey="value"
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -91,7 +133,7 @@ const CustomerEngagementChart = () => {
 
       {/* Legend */}
       <div className="grid grid-cols-2 gap-y-2 gap-x-4">
-        {data.map((entry, index) => (
+        {chartData.map((entry, index) => (
           <div key={index} className="flex items-center gap-2">
             <div 
               className="w-3 h-3 rounded-full flex-shrink-0" 
@@ -101,6 +143,8 @@ const CustomerEngagementChart = () => {
           </div>
         ))}
       </div>
+        </>
+      )}
     </div>
   );
 };

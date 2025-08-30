@@ -113,7 +113,7 @@ bookingSchema.index({ status: 1 });
 bookingSchema.index({ 'paymentDetails.paymentStatus': 1 });
 
 // Pre-save middleware to generate booking ID
-bookingSchema.pre('save', async function(next) {
+bookingSchema.pre('validate', async function(next) {
   if (!this.bookingId) {
     // Generate unique booking ID
     const timestamp = Date.now().toString(36);

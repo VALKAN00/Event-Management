@@ -124,8 +124,43 @@ const getRevenueAnalytics = asyncHandler(async (req, res) => {
     dateRange = getDateRange(period);
   }
 
-  // Daily revenue for the period
-  const dailyRevenue = await Booking.aggregate([
+  // Determine grouping based on period
+  let groupBy, dateFormat;
+  switch (period) {
+    case 'week':
+      groupBy = {
+        year: { $year: '$bookingDate' },
+        month: { $month: '$bookingDate' },
+        day: { $dayOfMonth: '$bookingDate' }
+      };
+      dateFormat = 'day';
+      break;
+    case 'month':
+      groupBy = {
+        year: { $year: '$bookingDate' },
+        week: { $week: '$bookingDate' }
+      };
+      dateFormat = 'week';
+      break;
+    case 'quarter':
+    case 'year':
+      groupBy = {
+        year: { $year: '$bookingDate' },
+        month: { $month: '$bookingDate' }
+      };
+      dateFormat = 'month';
+      break;
+    default:
+      groupBy = {
+        year: { $year: '$bookingDate' },
+        month: { $month: '$bookingDate' },
+        day: { $dayOfMonth: '$bookingDate' }
+      };
+      dateFormat = 'day';
+  }
+
+  // Daily/Weekly/Monthly revenue for the period
+  const periodRevenue = await Booking.aggregate([
     {
       $lookup: {
         from: 'events',
@@ -146,22 +181,69 @@ const getRevenueAnalytics = asyncHandler(async (req, res) => {
     },
     {
       $group: {
-        _id: {
-          year: { $year: '$bookingDate' },
-          month: { $month: '$bookingDate' },
-          day: { $dayOfMonth: '$bookingDate' }
-        },
-        dailyRevenue: { $sum: '$totalAmount' },
-        dailyBookings: { $sum: 1 },
-        dailyTickets: { $sum: { $size: '$seats' } }
+        _id: groupBy,
+        revenue: { $sum: '$totalAmount' },
+        bookings: { $sum: 1 },
+        tickets: { $sum: { $size: '$seats' } },
+        events: { $addToSet: '$event' }
       }
     },
     {
-      $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
+      $addFields: {
+        eventCount: { $size: '$events' }
+      }
+    },
+    {
+      $sort: { 
+        '_id.year': 1, 
+        '_id.month': 1, 
+        '_id.week': 1,
+        '_id.day': 1 
+      }
     }
   ]);
 
-  // Revenue by event
+  // Format data for chart
+  const formatChartData = (data, period) => {
+    const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+    
+    return data.map((item, index) => {
+      let name;
+      const percentage = totalRevenue > 0 ? ((item.revenue / totalRevenue) * 100).toFixed(1) : 0;
+      
+      switch (period) {
+        case 'week':
+          const date = new Date(item._id.year, item._id.month - 1, item._id.day);
+          name = date.toLocaleDateString('en-US', { weekday: 'short' });
+          break;
+        case 'month':
+          name = `Week ${item._id.week}`;
+          break;
+        case 'quarter':
+        case 'year':
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          name = monthNames[item._id.month - 1];
+          break;
+        default:
+          name = `Day ${index + 1}`;
+      }
+
+      return {
+        name,
+        value: item.revenue,
+        tickets: item.tickets,
+        events: item.eventCount,
+        bookings: item.bookings,
+        percentage: parseFloat(percentage)
+      };
+    });
+  };
+
+  const dailyRevenue = formatChartData(periodRevenue, period);
+
+  // Revenue trends
+  const currentPeriodRevenue = periodRevenue.reduce((sum, item) => sum + item.revenue, 0);
   const revenueByEvent = await Booking.aggregate([
     {
       $lookup: {
@@ -196,8 +278,7 @@ const getRevenueAnalytics = asyncHandler(async (req, res) => {
     }
   ]);
 
-  // Revenue trends
-  const currentPeriodRevenue = dailyRevenue.reduce((sum, day) => sum + day.dailyRevenue, 0);
+  // Revenue trends - use the calculated total from formatChartData function
   
   // Calculate previous period for comparison
   const periodLength = dateRange.endDate - dateRange.startDate;
@@ -241,8 +322,8 @@ const getRevenueAnalytics = asyncHandler(async (req, res) => {
       totalRevenue: currentPeriodRevenue,
       previousPeriodRevenue: previousRevenue,
       growthPercentage: parseFloat(revenueGrowth),
-      totalBookings: dailyRevenue.reduce((sum, day) => sum + day.dailyBookings, 0),
-      totalTickets: dailyRevenue.reduce((sum, day) => sum + day.dailyTickets, 0)
+      totalBookings: dailyRevenue.reduce((sum, item) => sum + item.bookings, 0),
+      totalTickets: dailyRevenue.reduce((sum, item) => sum + item.tickets, 0)
     },
     dailyRevenue,
     revenueByEvent,
@@ -736,6 +817,66 @@ const convertToCSV = (data) => {
   return [headers, ...rows].join('\n');
 };
 
+// @desc    Get customer engagement by event
+// @route   GET /api/analytics/customer-engagement
+// @access  Private/Admin
+const getCustomerEngagement = asyncHandler(async (req, res) => {
+  const { period = 'month' } = req.query;
+  const { startDate, endDate } = getDateRange(period);
+
+  // Get booking data grouped by event
+  const eventEngagement = await Booking.aggregate([
+    {
+      $lookup: {
+        from: 'events',
+        localField: 'event',
+        foreignField: '_id',
+        as: 'eventData'
+      }
+    },
+    {
+      $unwind: '$eventData'
+    },
+    {
+      $match: {
+        'eventData.organizer': req.user._id,
+        bookingDate: { $gte: startDate, $lte: endDate },
+        status: { $in: ['confirmed', 'checked-in'] }
+      }
+    },
+    {
+      $group: {
+        _id: '$event',
+        eventName: { $first: '$eventData.name' },
+        eventStatus: { $first: '$eventData.status' },
+        totalBookings: { $sum: 1 },
+        totalRevenue: { $sum: '$totalAmount' },
+        totalTickets: { $sum: { $size: '$seats' } }
+      }
+    },
+    {
+      $sort: { totalBookings: -1 }
+    },
+    {
+      $limit: 5
+    }
+  ]);
+
+  // Format data for donut chart
+  const chartData = eventEngagement.map(event => ({
+    name: event.eventName,
+    value: event.totalBookings,
+    revenue: event.totalRevenue,
+    tickets: event.totalTickets,
+    status: event.eventStatus
+  }));
+
+  successResponse(res, {
+    engagementData: chartData,
+    period
+  }, 'Customer engagement data retrieved successfully');
+});
+
 module.exports = {
   getDashboardStats,
   getRevenueAnalytics,
@@ -746,5 +887,6 @@ module.exports = {
   getAgeGroupAnalytics,
   getGenderAnalytics,
   getSocialMediaReach,
+  getCustomerEngagement,
   exportAnalytics
 };

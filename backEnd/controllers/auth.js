@@ -28,6 +28,22 @@ const register = asyncHandler(async (req, res) => {
   user.emailVerificationToken = emailVerificationToken;
   await user.save();
 
+  // Emit real-time update for new user registration
+  if (global.io) {
+    console.log('🔄 Emitting userCreated event for new registration');
+    global.io.to('users').emit('userCreated', {
+      type: 'registered',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+      }
+    });
+  }
+
   // Send token response
   sendTokenResponse(user, 201, res, 'User registered successfully');
 });

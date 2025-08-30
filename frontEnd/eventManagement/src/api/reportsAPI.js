@@ -1,9 +1,9 @@
 // API service for analytics
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5004/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Get authentication token
 const getAuthToken = () => {
-  return localStorage.getItem('token'); // Adjust based on your auth implementation
+  return localStorage.getItem('token');
 };
 
 // API headers with authentication
@@ -15,8 +15,23 @@ const getHeaders = () => ({
 // Handle API responses
 const handleResponse = async (response) => {
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'API request failed');
+    if (response.status === 401) {
+      // Unauthorized - redirect to login or handle auth error
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
+    let errorMessage = 'API request failed';
+    try {
+      const error = await response.json();
+      errorMessage = error.message || errorMessage;
+    } catch {
+      // If response is not JSON, use status text
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
   return response.json();
 };
