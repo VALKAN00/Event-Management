@@ -91,56 +91,6 @@ export default function Analytics() {
     fetchData();
   }, [activeTab, createFilterParams, user]);
 
-  const refreshData = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const params = createFilterParams();
-
-      switch (activeTab) {
-        case 'overview': {
-          const dashboardResponse = await analyticsAPI.getDashboardStats(params);
-          setDashboardData(dashboardResponse.data);
-          
-          // Also fetch revenue data for the overview chart
-          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
-          setRevenueData(revenueResponse.data);
-          break;
-        }
-        case 'revenue': {
-          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
-          setRevenueData(revenueResponse.data);
-          break;
-        }
-        case 'attendees': {
-          const attendeeResponse = await analyticsAPI.getAttendeeInsights(params);
-          setAttendeeData(attendeeResponse.data);
-          break;
-        }
-        case 'events': {
-          const eventResponse = await analyticsAPI.getEventPerformance(params);
-          setEventPerformanceData(eventResponse.data);
-          break;
-        }
-        default: {
-          const defaultResponse = await analyticsAPI.getDashboardStats(params);
-          setDashboardData(defaultResponse.data);
-          
-          // Also fetch revenue data for the overview chart
-          const revenueResponse = await analyticsAPI.getRevenueAnalytics(params);
-          setRevenueData(revenueResponse.data);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching analytics data:', error);
-      setError(error.message || 'Failed to refresh analytics data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Handle filter changes
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -193,17 +143,6 @@ export default function Analytics() {
               <p className="mt-1 text-sm text-gray-600">
                 Comprehensive insights into your event performance
               </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => refreshData()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Refresh
-              </button>
             </div>
           </div>
         </div>

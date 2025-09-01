@@ -1,6 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Header from "./global/Header";
 import Sidebar from "./global/Sidebar";
@@ -8,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import ManageEvents from "./pages/ManageEvents";
 import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./components/ManageEvents/EventDetails";
+import SearchEventDetails from "./pages/SearchEventDetails";
+import SearchSeeAll from "./pages/SearchSeeAll";
 import Booking from "./pages/Booking";
 import AttendeeInsights from "./pages/AttendeeInsights";
 import SingleAttendeeInsights from "./pages/SingleAttendeeInsights";
@@ -91,6 +94,16 @@ function AppContent() {
                 <EventDetails />
               </ProtectedRoute>
             } />
+            <Route path="/search-event-details/:id" element={
+              <ProtectedRoute>
+                <SearchEventDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/search-see-all" element={
+              <ProtectedRoute>
+                <SearchSeeAll />
+              </ProtectedRoute>
+            } />
             <Route path="/booking-tickets" element={
               <ProtectedRoute>
                 <Booking />
@@ -156,9 +169,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <NotificationProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

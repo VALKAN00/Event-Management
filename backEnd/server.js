@@ -5,7 +5,8 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -13,10 +14,12 @@ const eventRoutes = require('./routes/events');
 const bookingRoutes = require('./routes/bookings');
 const analyticsRoutes = require('./routes/analytics');
 const userRoutes = require('./routes/users');
+const notificationRoutes = require('./routes/notifications');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
+const { startUpcomingEventsChecker } = require('./utils/notificationService');
 
 const app = express();
 const server = createServer(app);
@@ -85,6 +88,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -105,6 +109,12 @@ const PORT = process.env.PORT || 5000;
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log(`🔌 User connected: ${socket.id}`);
+  
+  // Handle user joining their personal notification room
+  socket.on('join', (userId) => {
+    socket.join(userId);
+    console.log(`📫 User ${socket.id} joined notifications room: ${userId}`);
+  });
   
   // Join user to a room for targeted updates
   socket.on('join-dashboard', () => {
@@ -135,6 +145,9 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
   console.log(`🔌 Socket.IO enabled for real-time updates`);
+  
+  // Start notification services
+  startUpcomingEventsChecker();
 });
 
 module.exports = app;

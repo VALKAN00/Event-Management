@@ -49,7 +49,11 @@ const userSchema = new mongoose.Schema({
     interests: [{
       type: String,
       enum: ['Live Music', 'EDM Music', 'Innovation', 'Food Festivals', 'Sports', 'Art', 'Technology']
-    }]
+    }],
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters']
+    }
   },
   isActive: {
     type: Boolean,

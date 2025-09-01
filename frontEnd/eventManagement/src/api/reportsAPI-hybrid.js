@@ -78,30 +78,47 @@ const mockData = {
   attendees: {
     success: true,
     data: {
-      totalAttendees: 3456,
-      uniqueAttendees: 2890,
-      repeatAttendees: 566,
-      averageAge: 28.5,
-      ageGroups: [
-        { _id: '18-25', count: 1234, percentage: 35.7 },
-        { _id: '26-35', count: 1567, percentage: 45.3 },
-        { _id: '36-45', count: 456, percentage: 13.2 },
-        { _id: '46+', count: 199, percentage: 5.8 }
-      ],
-      genderBreakdown: [
-        { _id: 'Male', count: 1890, percentage: 54.7 },
-        { _id: 'Female', count: 1456, percentage: 42.1 },
-        { _id: 'Other', count: 110, percentage: 3.2 }
-      ],
-      topLocations: [
-        { _id: 'Colombo', count: 1456, percentage: 42.1 },
-        { _id: 'Kandy', count: 789, percentage: 22.8 },
-        { _id: 'Galle', count: 456, percentage: 13.2 }
-      ],
-      topInterests: [
-        { _id: 'Technology', count: 1234, percentage: 35.7 },
-        { _id: 'Music', count: 987, percentage: 28.6 },
-        { _id: 'Food & Drink', count: 567, percentage: 16.4 }
+      summary: {
+        totalAttendees: 3456,
+        uniqueAttendees: 2890,
+        returningAttendeeRate: "16.38"
+      },
+      demographics: {
+        ageGroups: {
+          '18-25': 1234,
+          '26-35': 1567,
+          '36-45': 456,
+          '46+': 199
+        },
+        genderDistribution: {
+          'Male': 1890,
+          'Female': 1456,
+          'Other': 110
+        },
+        locationDistribution: {
+          'Colombo': 1456,
+          'Kandy': 789,
+          'Galle': 456,
+          'Jaffna': 312,
+          'Negombo': 234,
+          'Matara': 189
+        }
+      },
+      interests: {
+        'Technology': 1234,
+        'Live Music': 987,
+        'Food Festivals': 756,
+        'Sports': 643,
+        'Art': 532,
+        'Innovation': 421,
+        'EDM Music': 345
+      },
+      attendanceGrowth: [
+        { date: '2025-01-01', attendees: 234 },
+        { date: '2025-01-15', attendees: 456 },
+        { date: '2025-02-01', attendees: 567 },
+        { date: '2025-02-15', attendees: 643 },
+        { date: '2025-03-01', attendees: 732 }
       ]
     }
   },
@@ -203,14 +220,17 @@ export const analyticsAPI = {
   // Export analytics data
   exportAnalytics: async (type, params = {}) => {
     try {
-      const queryString = new URLSearchParams(params).toString();
+      // Add format=csv to ensure we get CSV output
+      const exportParams = { ...params, format: 'csv' };
+      const queryString = new URLSearchParams(exportParams).toString();
       const response = await fetch(`${BASE_URL}/analytics/export/${type}?${queryString}`, {
         method: 'GET',
         headers: getHeaders()
       });
       
       if (!response.ok) {
-        throw new Error('Export failed from backend');
+        const errorText = await response.text();
+        throw new Error(`Export failed: ${response.status} - ${errorText}`);
       }
       
       // Handle file download from backend
@@ -226,6 +246,7 @@ export const analyticsAPI = {
       document.body.removeChild(a);
       
       console.log(`✅ Real API export success for ${type}`);
+      return { success: true, message: 'Export completed successfully' };
     } catch (error) {
       console.warn(`⚠️  Real API export failed for ${type}:`, error.message);
       console.log(`🔄 Falling back to mock export`);

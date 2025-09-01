@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
   Bar, 
-  LineChart, 
-  Line, 
   AreaChart, 
   Area, 
   XAxis, 
@@ -136,12 +134,6 @@ const AttendeeReports = ({ loading: parentLoading }) => {
   }
 
   // Transform data for charts
-  const ageGroupData = Object.entries(data.demographics?.ageGroups || {}).map(([age, count]) => ({
-    age,
-    count,
-    percentage: ((count / data.summary?.totalAttendees) * 100).toFixed(1)
-  }));
-
   const genderData = Object.entries(data.demographics?.genderDistribution || {}).map(([gender, count]) => ({
     gender: gender.charAt(0).toUpperCase() + gender.slice(1),
     count,
@@ -157,19 +149,9 @@ const AttendeeReports = ({ loading: parentLoading }) => {
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
 
-  const interestData = Object.entries(data.interests || {})
-    .map(([interest, count]) => ({
-      interest: interest.charAt(0).toUpperCase() + interest.slice(1),
-      count,
-      percentage: ((count / data.summary?.totalAttendees) * 100).toFixed(1)
-    }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 6);
-
   const growthData = data.attendanceGrowth || [];
 
   // Color schemes
-  const AGE_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1'];
   const GENDER_COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
   return (
@@ -197,29 +179,8 @@ const AttendeeReports = ({ loading: parentLoading }) => {
         </div>
       </div>
 
-      {/* Age Groups - Horizontal Bar Chart */}
+      {/* Gender Distribution and Location Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Age Group Distribution</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ageGroupData} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="age" type="category" width={60} />
-                <Tooltip 
-                  formatter={(value, name) => [value, name === 'count' ? 'Attendees' : name]}
-                  labelFormatter={(label) => `Age Group: ${label}`}
-                />
-                <Bar dataKey="count" fill="#8884d8">
-                  {ageGroupData.map((entry, index) => (
-                    <Cell key={`age-${index}`} fill={AGE_COLORS[index % AGE_COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
         {/* Gender Distribution - Vertical Bar Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -243,10 +204,7 @@ const AttendeeReports = ({ loading: parentLoading }) => {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
 
-      {/* Location and Interests */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Locations - Area Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Locations</h3>
@@ -274,37 +232,6 @@ const AttendeeReports = ({ loading: parentLoading }) => {
                   fillOpacity={0.6}
                 />
               </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Top Interests - Line Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Interests</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={interestData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="interest" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                  interval={0}
-                />
-                <YAxis />
-                <Tooltip 
-                  formatter={(value) => [value, 'Interested Attendees']}
-                  labelFormatter={(label) => `Interest: ${label}`}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="#8884d8" 
-                  strokeWidth={3}
-                  dot={{ fill: '#8884d8', strokeWidth: 2, r: 6 }}
-                />
-              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>

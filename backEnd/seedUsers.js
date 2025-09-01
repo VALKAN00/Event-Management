@@ -20,7 +20,15 @@ const seedUsers = async () => {
         role: 'admin',
         isActive: true,
         profileDetails: {
-          bio: 'System administrator with full access to all features.'
+          bio: 'System administrator with full access to all features.',
+          phone: '+94771234567',
+          dateOfBirth: new Date('1985-03-15'),
+          gender: 'other',
+          location: {
+            city: 'Colombo',
+            country: 'Sri Lanka'
+          },
+          interests: ['Technology', 'Innovation', 'Art']
         }
       },
       {
@@ -30,7 +38,15 @@ const seedUsers = async () => {
         role: 'user',
         isActive: true,
         profileDetails: {
-          bio: 'Event organizer and marketing specialist.'
+          bio: 'Event organizer and marketing specialist.',
+          phone: '+94771234568',
+          dateOfBirth: new Date('1990-07-22'),
+          gender: 'male',
+          location: {
+            city: 'Kandy',
+            country: 'Sri Lanka'
+          },
+          interests: ['Live Music', 'Innovation', 'Sports']
         }
       },
       {
@@ -40,7 +56,15 @@ const seedUsers = async () => {
         role: 'user',
         isActive: false,
         profileDetails: {
-          bio: 'Former event coordinator.'
+          bio: 'Former event coordinator.',
+          phone: '+94771234569',
+          dateOfBirth: new Date('1988-12-05'),
+          gender: 'female',
+          location: {
+            city: 'Galle',
+            country: 'Sri Lanka'
+          },
+          interests: ['Food Festivals', 'Art', 'Innovation']
         }
       },
       {
@@ -50,7 +74,15 @@ const seedUsers = async () => {
         role: 'admin',
         isActive: true,
         profileDetails: {
-          bio: 'Technical administrator and system maintainer.'
+          bio: 'Technical administrator and system maintainer.',
+          phone: '+94771234570',
+          dateOfBirth: new Date('1982-09-18'),
+          gender: 'male',
+          location: {
+            city: 'Colombo',
+            country: 'Sri Lanka'
+          },
+          interests: ['Technology', 'Innovation', 'EDM Music']
         }
       },
       {
@@ -60,7 +92,15 @@ const seedUsers = async () => {
         role: 'user',
         isActive: true,
         profileDetails: {
-          bio: 'Event attendee and community member.'
+          bio: 'Event attendee and community member.',
+          phone: '+94771234571',
+          dateOfBirth: new Date('1995-04-30'),
+          gender: 'female',
+          location: {
+            city: 'Jaffna',
+            country: 'Sri Lanka'
+          },
+          interests: ['Live Music', 'Food Festivals', 'Sports']
         }
       }
     ];
@@ -72,7 +112,17 @@ const seedUsers = async () => {
         await user.save();
         console.log(`✅ Created user: ${userData.name} (${userData.email})`);
       } else {
-        console.log(`⚠️  User already exists: ${userData.email}`);
+        // Update existing user's profile details
+        await User.findByIdAndUpdate(
+          existingUser._id,
+          { 
+            $set: { 
+              profileDetails: userData.profileDetails 
+            } 
+          },
+          { new: true }
+        );
+        console.log(`🔄 Updated profile for existing user: ${userData.email}`);
       }
     }
 

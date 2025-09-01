@@ -104,6 +104,29 @@ export const usersAPI = {
     }
   },
 
+  // Update current user's profile
+  updateProfile: async (profileData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      });
+
+      const data = await handleResponse(response);
+      
+      // Update the stored user data in localStorage
+      if (data.success && data.data) {
+        localStorage.setItem('user', JSON.stringify(data.data));
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  },
+
   // Update user
   updateUser: async (userId, userData) => {
     try {

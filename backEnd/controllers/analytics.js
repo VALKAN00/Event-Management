@@ -375,13 +375,14 @@ const getAttendeeInsights = asyncHandler(async (req, res) => {
         userId: '$userData._id',
         userName: '$userData.name',
         userEmail: '$userData.email',
-        gender: '$userData.profileDetails.gender',
+        gender: '$attendeeInfo.gender',
         location: '$userData.profileDetails.location',
         interests: '$userData.profileDetails.interests',
         dateOfBirth: '$userData.profileDetails.dateOfBirth',
         totalAmount: '$totalAmount',
         eventName: '$eventData.name',
-        eventDate: '$eventData.date'
+        eventDate: '$eventData.date',
+        eventVenue: '$eventData.venue'
       }
     }
   ]);
@@ -413,7 +414,10 @@ const getAttendeeInsights = asyncHandler(async (req, res) => {
 
   // Location distribution
   const locationDistribution = attendeeData.reduce((acc, attendee) => {
-    const city = attendee.location?.city || 'Unknown';
+    // Try user's location first, then event venue city as fallback
+    const city = attendee.location?.city || 
+                 attendee.eventVenue?.city || 
+                 'Unknown';
     acc[city] = (acc[city] || 0) + 1;
     return acc;
   }, {});
@@ -754,16 +758,82 @@ const exportAnalytics = asyncHandler(async (req, res) => {
   
   switch (type) {
     case 'events':
-      data = await Event.find({ organizer: req.user.id, isActive: true })
-        .select('name date venue analytics seatConfiguration status');
+      // For admin users, show all events; for regular users, show only their events
+      const eventFilter = req.user.role === 'admin' ? { isActive: true } : { organizer: req.user.id, isActive: true };
+      data = await Event.find(eventFilter)
+        .select('name date venue analytics seatConfiguration status organizer')
+        .populate('organizer', 'name');
       break;
     
     case 'bookings':
+      // For admin users, show all bookings; for regular users, show only their event bookings
+      let bookingEventIds;
+      if (req.user.role === 'admin') {
+        bookingEventIds = await Event.find({ isActive: true }).distinct('_id');
+      } else {
+        bookingEventIds = await Event.find({ organizer: req.user.id }).distinct('_id');
+      }
+      
       data = await Booking.find({
-        'event': { $in: await Event.find({ organizer: req.user.id }).distinct('_id') }
+        'event': { $in: bookingEventIds }
       })
         .populate('event', 'name')
         .populate('user', 'name email');
+      break;
+    
+    case 'attendees':
+      // Get attendee data with detailed information
+      data = await Booking.aggregate([
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'event',
+            foreignField: '_id',
+            as: 'eventData'
+          }
+        },
+        {
+          $unwind: '$eventData'
+        },
+        {
+          $match: {
+            // For admin users, show all events; for regular users, show only their events
+            ...(req.user.role === 'admin' ? {} : { 'eventData.organizer': req.user._id }),
+            status: { $in: ['confirmed', 'checked-in'] }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'userData'
+          }
+        },
+        {
+          $unwind: '$userData'
+        },
+        {
+          $project: {
+            eventName: '$eventData.name',
+            eventDate: '$eventData.date',
+            eventVenue: '$eventData.venue.name',
+            eventCity: '$eventData.venue.city',
+            attendeeName: '$userData.name',
+            attendeeEmail: '$userData.email',
+            attendeePhone: '$userData.profileDetails.phone',
+            attendeeGender: '$attendeeInfo.gender',
+            attendeeLocation: '$userData.profileDetails.location.city',
+            attendeeCountry: '$userData.profileDetails.location.country',
+            attendeeInterests: '$userData.profileDetails.interests',
+            bookingDate: '$bookingDate',
+            ticketType: '$seats.seatType',
+            totalAmount: '$totalAmount',
+            paymentMethod: '$paymentMethod',
+            status: '$status'
+          }
+        }
+      ]);
       break;
     
     case 'revenue':
@@ -788,33 +858,382 @@ const exportAnalytics = asyncHandler(async (req, res) => {
       ]);
       break;
     
+    case 'complete':
+      // Complete report - combine all data types
+      const completeData = {};
+      
+      // Get events data
+      const completeEventFilter = req.user.role === 'admin' ? { isActive: true } : { organizer: req.user.id, isActive: true };
+      completeData.events = await Event.find(completeEventFilter)
+        .select('name date venue analytics seatConfiguration status organizer')
+        .populate('organizer', 'name');
+      
+      // Get bookings data
+      let completeBookingEventIds;
+      if (req.user.role === 'admin') {
+        completeBookingEventIds = await Event.find({ isActive: true }).distinct('_id');
+      } else {
+        completeBookingEventIds = await Event.find({ organizer: req.user.id }).distinct('_id');
+      }
+      
+      completeData.bookings = await Booking.find({
+        'event': { $in: completeBookingEventIds }
+      })
+        .populate('event', 'name')
+        .populate('user', 'name email');
+      
+      // Get attendees data
+      completeData.attendees = await Booking.aggregate([
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'event',
+            foreignField: '_id',
+            as: 'eventData'
+          }
+        },
+        {
+          $unwind: '$eventData'
+        },
+        {
+          $match: {
+            ...(req.user.role === 'admin' ? {} : { 'eventData.organizer': req.user._id }),
+            status: { $in: ['confirmed', 'checked-in'] }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'userData'
+          }
+        },
+        {
+          $unwind: '$userData'
+        },
+        {
+          $project: {
+            eventName: '$eventData.name',
+            eventDate: '$eventData.date',
+            eventVenue: '$eventData.venue.name',
+            eventCity: '$eventData.venue.city',
+            attendeeName: '$userData.name',
+            attendeeEmail: '$userData.email',
+            attendeePhone: '$userData.profileDetails.phone',
+            attendeeGender: '$attendeeInfo.gender',
+            attendeeLocation: '$userData.profileDetails.location.city',
+            attendeeCountry: '$userData.profileDetails.location.country',
+            attendeeInterests: '$userData.profileDetails.interests',
+            bookingDate: '$bookingDate',
+            totalAmount: '$totalAmount',
+            paymentMethod: '$paymentMethod',
+            status: '$status'
+          }
+        }
+      ]);
+      
+      // Get revenue summary
+      completeData.revenue = await Booking.aggregate([
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'event',
+            foreignField: '_id',
+            as: 'eventData'
+          }
+        },
+        {
+          $unwind: '$eventData'
+        },
+        {
+          $match: {
+            ...(req.user.role === 'admin' ? {} : { 'eventData.organizer': req.user._id }),
+            status: { $in: ['confirmed', 'checked-in'] }
+          }
+        },
+        {
+          $group: {
+            _id: '$event',
+            eventName: { $first: '$eventData.name' },
+            totalRevenue: { $sum: '$totalAmount' },
+            totalBookings: { $sum: 1 },
+            averageTicketPrice: { $avg: '$totalAmount' }
+          }
+        }
+      ]);
+      
+      data = completeData;
+      break;
+    
     default:
       return errorResponse(res, 'Invalid export type', 400);
   }
 
   if (format === 'csv') {
-    // Convert to CSV (simplified version)
-    const csv = convertToCSV(data);
+    // Convert to CSV with type-specific formatting
+    const csv = convertToCSV(data, type);
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename=${type}-export.csv`);
+    res.setHeader('Content-Disposition', `attachment; filename=${type}-export-${new Date().toISOString().split('T')[0]}.csv`);
     return res.send(csv);
   }
 
   successResponse(res, data, `${type} data exported successfully`);
 });
 
-// Helper function to convert to CSV (basic implementation)
-const convertToCSV = (data) => {
-  if (!data || data.length === 0) return '';
+// Helper function to convert to CSV (improved implementation)
+const convertToCSV = (data, type) => {
+  // Special handling for complete report which has different structure
+  if (type === 'complete') {
+    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) return '';
+  } else {
+    if (!data || data.length === 0) return '';
+  }
   
-  const headers = Object.keys(data[0]).join(',');
-  const rows = data.map(row => 
-    Object.values(row).map(val => 
-      typeof val === 'object' ? JSON.stringify(val) : val
-    ).join(',')
+  let headers, rows;
+  
+  switch (type) {
+    case 'events':
+      headers = [
+        'Event Name',
+        'Event Date',
+        'Venue Name',
+        'Venue City',
+        'Status',
+        'Total Bookings',
+        'Revenue',
+        'Capacity',
+        'Organizer',
+        'Created Date'
+      ];
+      
+      rows = data.map(event => [
+        event.name || '',
+        event.date ? new Date(event.date).toLocaleDateString() : '',
+        event.venue?.name || '',
+        event.venue?.city || '',
+        event.status || '',
+        event.analytics?.totalBookings || 0,
+        event.analytics?.revenue || 0,
+        event.seatConfiguration?.totalSeats || 0,
+        event.organizer?.name || 'Unknown',
+        event.createdAt ? new Date(event.createdAt).toLocaleDateString() : ''
+      ]);
+      break;
+      
+    case 'bookings':
+      headers = [
+        'Booking ID',
+        'Event Name',
+        'User Name',
+        'User Email',
+        'Booking Date',
+        'Total Amount',
+        'Payment Method',
+        'Status',
+        'Seats Count'
+      ];
+      
+      rows = data.map(booking => [
+        booking.bookingId || booking._id,
+        booking.event?.name || '',
+        booking.user?.name || '',
+        booking.user?.email || '',
+        booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : '',
+        booking.totalAmount || 0,
+        booking.paymentMethod || '',
+        booking.status || '',
+        booking.seats?.length || 0
+      ]);
+      break;
+      
+    case 'attendees':
+      headers = [
+        'Event Name',
+        'Event Date', 
+        'Event Venue',
+        'Event City',
+        'Attendee Name',
+        'Attendee Email',
+        'Attendee Phone',
+        'Gender',
+        'Location',
+        'Country',
+        'Interests',
+        'Booking Date',
+        'Total Amount',
+        'Payment Method',
+        'Status'
+      ];
+      
+      rows = data.map(row => [
+        row.eventName || '',
+        row.eventDate ? new Date(row.eventDate).toLocaleDateString() : '',
+        row.eventVenue || '',
+        row.eventCity || '',
+        row.attendeeName || '',
+        row.attendeeEmail || '',
+        row.attendeePhone || '',
+        row.attendeeGender || '',
+        row.attendeeLocation || '',
+        row.attendeeCountry || '',
+        Array.isArray(row.attendeeInterests) ? row.attendeeInterests.join('; ') : '',
+        row.bookingDate ? new Date(row.bookingDate).toLocaleDateString() : '',
+        row.totalAmount || 0,
+        row.paymentMethod || '',
+        row.status || ''
+      ]);
+      break;
+      
+    case 'complete':
+      // Complete report combines all data types into one comprehensive CSV
+      const completeHeaders = [
+        'Report Type',
+        'Event Name',
+        'Event Date',
+        'Venue',
+        'City',
+        'Item Name/Attendee Name',
+        'Email',
+        'Phone',
+        'Gender',
+        'Location',
+        'Total Amount',
+        'Status',
+        'Booking Date',
+        'Payment Method',
+        'Organizer',
+        'Additional Info'
+      ];
+      
+      const completeRows = [];
+      
+      // Add events data
+      if (data.events) {
+        data.events.forEach(event => {
+          completeRows.push([
+            'Event',
+            event.name || '',
+            event.date ? new Date(event.date).toLocaleDateString() : '',
+            event.venue?.name || '',
+            event.venue?.city || '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            event.analytics?.revenue || 0,
+            event.status || '',
+            event.createdAt ? new Date(event.createdAt).toLocaleDateString() : '',
+            '',
+            event.organizer?.name || 'Unknown',
+            `Capacity: ${event.seatConfiguration?.totalSeats || 0}, Bookings: ${event.analytics?.totalBookings || 0}`
+          ]);
+        });
+      }
+      
+      // Add bookings data
+      if (data.bookings) {
+        data.bookings.forEach(booking => {
+          completeRows.push([
+            'Booking',
+            booking.event?.name || '',
+            '',
+            '',
+            '',
+            booking.user?.name || '',
+            booking.user?.email || '',
+            '',
+            '',
+            '',
+            booking.totalAmount || 0,
+            booking.status || '',
+            booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : '',
+            booking.paymentMethod || '',
+            '',
+            `Booking ID: ${booking.bookingId || booking._id}, Seats: ${booking.seats?.length || 0}`
+          ]);
+        });
+      }
+      
+      // Add attendees data
+      if (data.attendees) {
+        data.attendees.forEach(attendee => {
+          completeRows.push([
+            'Attendee',
+            attendee.eventName || '',
+            attendee.eventDate ? new Date(attendee.eventDate).toLocaleDateString() : '',
+            attendee.eventVenue || '',
+            attendee.eventCity || '',
+            attendee.attendeeName || '',
+            attendee.attendeeEmail || '',
+            attendee.attendeePhone || '',
+            attendee.attendeeGender || '',
+            attendee.attendeeLocation || '',
+            attendee.totalAmount || 0,
+            attendee.status || '',
+            attendee.bookingDate ? new Date(attendee.bookingDate).toLocaleDateString() : '',
+            attendee.paymentMethod || '',
+            '',
+            `Country: ${attendee.attendeeCountry || ''}, Interests: ${Array.isArray(attendee.attendeeInterests) ? attendee.attendeeInterests.join('; ') : ''}`
+          ]);
+        });
+      }
+      
+      // Add revenue summary
+      if (data.revenue) {
+        data.revenue.forEach(revenue => {
+          completeRows.push([
+            'Revenue Summary',
+            revenue.eventName || '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            revenue.totalRevenue || 0,
+            'Summary',
+            '',
+            '',
+            '',
+            `Total Bookings: ${revenue.totalBookings || 0}, Avg Price: ${revenue.averageTicketPrice || 0}`
+          ]);
+        });
+      }
+      
+      headers = completeHeaders;
+      rows = completeRows;
+      break;
+      
+    default:
+      // Generic CSV conversion for other types
+      headers = Object.keys(data[0]);
+      rows = data.map(row => 
+        headers.map(header => {
+          const val = row[header];
+          if (typeof val === 'object' && val !== null) {
+            return JSON.stringify(val).replace(/"/g, '""');
+          }
+          return val || '';
+        })
+      );
+  }
+  
+  // Escape commas and quotes in data
+  const escapedRows = rows.map(row => 
+    row.map(cell => {
+      const cellStr = String(cell);
+      if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+        return `"${cellStr.replace(/"/g, '""')}"`;
+      }
+      return cellStr;
+    })
   );
   
-  return [headers, ...rows].join('\n');
+  return [headers.join(','), ...escapedRows.map(row => row.join(','))].join('\n');
 };
 
 // @desc    Get customer engagement by event

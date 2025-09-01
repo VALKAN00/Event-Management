@@ -65,6 +65,11 @@ const validateUserUpdate = [
     .optional()
     .isIn(['male', 'female', 'other'])
     .withMessage('Gender must be male, female, or other'),
+  body('profileDetails.bio')
+    .optional()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Bio cannot exceed 500 characters'),
   handleValidationErrors
 ];
 

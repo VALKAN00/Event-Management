@@ -135,7 +135,8 @@ const updateProfile = asyncHandler(async (req, res) => {
     'profileDetails.dateOfBirth', 
     'profileDetails.gender', 
     'profileDetails.location', 
-    'profileDetails.interests'
+    'profileDetails.interests',
+    'profileDetails.bio'
   ];
 
   // Filter request body to only include allowed fields

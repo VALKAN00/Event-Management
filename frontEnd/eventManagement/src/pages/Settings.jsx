@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getCurrentUser } from "../api/authAPI";
 import authAPI from "../api/authAPI";
+import { usersAPI } from "../api/usersAPI";
 
 export default function Settings() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -13,7 +14,6 @@ export default function Settings() {
     name: "",
     email: "",
     phone: "",
-    bio: "",
   });
 
   // Password form data
@@ -23,28 +23,36 @@ export default function Settings() {
     confirmPassword: "",
   });
 
-  // Notification settings
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: false,
-    smsNotifications: false,
-    eventReminders: true,
-    weeklyReports: false,
-    marketingEmails: false,
-  });
-
-
   useEffect(() => {
-    const user = getCurrentUser();
-    if (user) {
-      setCurrentUser(user);
-      setProfileData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.profileDetails?.phone || "",
-        bio: user.profileDetails?.bio || "",
-      });
-    }
+    const loadUserProfile = async () => {
+      const user = getCurrentUser();
+      if (user) {
+        setCurrentUser(user);
+        setProfileData({
+          name: user.name || "",
+          email: user.email || "",
+          phone: user.profileDetails?.phone || "",
+        });
+
+        // Try to fetch fresh user data from backend
+        try {
+          const response = await authAPI.getMe();
+          if (response.success && response.data) {
+            setCurrentUser(response.data);
+            setProfileData({
+              name: response.data.name || "",
+              email: response.data.email || "",
+              phone: response.data.profileDetails?.phone || "",
+            });
+          }
+        } catch (error) {
+          console.log('Could not fetch fresh user data:', error.message);
+          // Continue with cached data, no need to show error to user
+        }
+      }
+    };
+
+    loadUserProfile();
   }, []);
 
   const showMessage = (type, text) => {
@@ -52,15 +60,67 @@ export default function Settings() {
     setTimeout(() => setMessage({ type: "", text: "" }), 5000);
   };
 
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // This would call your user update API
-      showMessage("success", "Profile updated successfully!");
-    } catch {
-      showMessage("error", "Failed to update profile. Please try again.");
+      // Basic validation
+      if (!profileData.name.trim()) {
+        showMessage("error", "Name is required");
+        return;
+      }
+
+      if (!profileData.email.trim()) {
+        showMessage("error", "Email is required");
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(profileData.email)) {
+        showMessage("error", "Please enter a valid email address");
+        return;
+      }
+
+      // Prepare the profile data for the API
+      const updateData = {
+        name: profileData.name.trim(),
+        email: profileData.email.trim(),
+        profileDetails: {
+          phone: profileData.phone.trim(),
+        }
+      };
+
+      // Call the API to update the profile
+      const response = await usersAPI.updateProfile(updateData);
+      
+      if (response.success) {
+        // Update the current user state with the new data
+        setCurrentUser(response.data);
+        showMessage("success", "Profile updated successfully!");
+      } else {
+        showMessage("error", response.message || "Failed to update profile.");
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
+      showMessage("error", error.message || "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -68,6 +128,17 @@ export default function Settings() {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+
+    // Validation
+    if (!passwordData.currentPassword.trim()) {
+      showMessage("error", "Current password is required!");
+      return;
+    }
+
+    if (!passwordData.newPassword.trim()) {
+      showMessage("error", "New password is required!");
+      return;
+    }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showMessage("error", "New passwords do not match!");
@@ -79,20 +150,33 @@ export default function Settings() {
       return;
     }
 
+    // Check password strength
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+    if (!strongPasswordRegex.test(passwordData.newPassword)) {
+      showMessage("error", "Password must contain uppercase, lowercase, number, and special character!");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await authAPI.updatePassword({
+      const response = await authAPI.updatePassword({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
-      showMessage("success", "Password updated successfully!");
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+
+      if (response.success) {
+        showMessage("success", "Password updated successfully!");
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        showMessage("error", response.message || "Failed to update password.");
+      }
     } catch (error) {
+      console.error('Password update error:', error);
       showMessage("error", error.message || "Failed to update password.");
     } finally {
       setLoading(false);
@@ -102,7 +186,6 @@ export default function Settings() {
   const tabs = [
     { id: "profile", label: "Profile", icon: "👤" },
     { id: "security", label: "Security", icon: "🔒" },
-    { id: "notifications", label: "Notifications", icon: "🔔" },
   ];
 
   return (
@@ -181,10 +264,9 @@ export default function Settings() {
                   </label>
                   <input
                     type="text"
+                    name="name"
                     value={profileData.name}
-                    onChange={(e) =>
-                      setProfileData({ ...profileData, name: e.target.value })
-                    }
+                    onChange={handleProfileChange}
                     className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your full name"
                   />
@@ -196,14 +278,28 @@ export default function Settings() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     value={profileData.email}
-                    onChange={(e) =>
-                      setProfileData({ ...profileData, email: e.target.value })
-                    }
+                    onChange={handleProfileChange}
                     className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your email"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={profileData.phone}
+                    onChange={handleProfileChange}
+                    className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">
                     Role
@@ -246,13 +342,9 @@ export default function Settings() {
                 </label>
                 <input
                   type="password"
+                  name="currentPassword"
                   value={passwordData.currentPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      currentPassword: e.target.value,
-                    })
-                  }
+                  onChange={handlePasswordChange}
                   className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter current password"
                   required
@@ -266,13 +358,9 @@ export default function Settings() {
                   </label>
                   <input
                     type="password"
+                    name="newPassword"
                     value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        newPassword: e.target.value,
-                      })
-                    }
+                    onChange={handlePasswordChange}
                     className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter new password"
                     required
@@ -285,13 +373,9 @@ export default function Settings() {
                   </label>
                   <input
                     type="password"
+                    name="confirmPassword"
                     value={passwordData.confirmPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
+                    onChange={handlePasswordChange}
                     className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Confirm new password"
                     required
@@ -321,64 +405,6 @@ export default function Settings() {
                 </button>
               </div>
             </form>
-          </div>
-        )}
-
-        {/* Notifications Tab */}
-        {activeTab === "notifications" && (
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Notification Preferences
-            </h2>
-
-            <div className="space-y-6">
-              {Object.entries(notificationSettings).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between p-4 bg-[#2a2a2a] rounded-lg"
-                >
-                  <div>
-                    <h3 className="text-white font-medium capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      {key === "emailNotifications" &&
-                        "Receive notifications via email"}
-                      {key === "pushNotifications" &&
-                        "Receive push notifications in browser"}
-                      {key === "smsNotifications" &&
-                        "Receive notifications via SMS"}
-                      {key === "eventReminders" &&
-                        "Get reminders about upcoming events"}
-                      {key === "weeklyReports" &&
-                        "Receive weekly summary reports"}
-                      {key === "marketingEmails" &&
-                        "Receive promotional emails"}
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={(e) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          [key]: e.target.checked,
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex justify-end">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                Save Preferences
-              </button>
-            </div>
           </div>
         )}      
       </div>

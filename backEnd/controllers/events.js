@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
+const { createNotification } = require('./notifications');
 const { 
   asyncHandler, 
   successResponse, 
@@ -200,6 +201,22 @@ const createEvent = asyncHandler(async (req, res) => {
         type: 'created',
         event: event
       });
+    }
+    
+    // Create notification for event creation
+    try {
+      await createNotification(
+        req.user.id,
+        '🎪 Event Created Successfully',
+        `Your event "${event.name}" has been created and is now live!`,
+        'event_created',
+        event._id,
+        'Event',
+        'medium'
+      );
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Don't fail the event creation if notification fails
     }
     
     successResponse(res, event, 'Event created successfully', 201);

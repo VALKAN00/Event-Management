@@ -1,6 +1,7 @@
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
 const User = require('../models/User');
+const { createNotification } = require('./notifications');
 const { 
   asyncHandler, 
   successResponse, 
@@ -111,6 +112,22 @@ const createBooking = asyncHandler(async (req, res) => {
       type: 'created',
       booking: booking
     });
+  }
+
+  // Create notification for successful booking
+  try {
+    await createNotification(
+      req.user.id,
+      '🎫 Booking Confirmed',
+      `Your booking for "${event.name}" has been confirmed! ${seats.length} seat(s) reserved.`,
+      'booking_created',
+      booking._id,
+      'Booking',
+      'high'
+    );
+  } catch (notificationError) {
+    console.error('Error creating booking notification:', notificationError);
+    // Don't fail the booking if notification fails
   }
 
   successResponse(res, booking, 'Booking created successfully', 201);

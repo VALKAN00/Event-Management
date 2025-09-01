@@ -80,6 +80,7 @@ const bookingSchema = new mongoose.Schema({
     name: String,
     email: String,
     phone: String,
+    gender: String,
     specialRequirements: String
   },
   notifications: {

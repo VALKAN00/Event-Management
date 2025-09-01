@@ -157,6 +157,15 @@ const eventSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  // Notification tracking
+  notificationSent24h: {
+    type: Boolean,
+    default: false
+  },
+  notificationSentWeek: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
