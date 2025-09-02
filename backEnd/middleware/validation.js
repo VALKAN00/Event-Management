@@ -101,7 +101,12 @@ const validateEventCreation = [
   body('date')
     .isISO8601()
     .withMessage('Please provide a valid date')
-    .custom((value) => {
+    .custom((value, { req }) => {
+      // Allow admin users to create events with past dates
+      if (req.user && req.user.role === 'admin') {
+        return true;
+      }
+      // For non-admin users, enforce future date validation
       if (new Date(value) <= new Date()) {
         throw new Error('Event date must be in the future');
       }

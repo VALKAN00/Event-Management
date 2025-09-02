@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SeatHeatMap from './SeatHeatMap';
 
-const CreateBookingForm = ({ isOpen, onClose, onSubmit, events = [], eventsLoading = false }) => {
+const CreateBookingForm = ({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  events = [], 
+  eventsLoading = false, 
+  preSelectedEventId = null 
+}) => {
   const [formData, setFormData] = useState({
     eventId: '',
     numberOfSeats: 1,
@@ -17,6 +25,19 @@ const CreateBookingForm = ({ isOpen, onClose, onSubmit, events = [], eventsLoadi
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
+
+  // Handle pre-selected event from QR code scan
+  useEffect(() => {
+    if (preSelectedEventId && events.length > 0) {
+      const eventExists = events.find(event => event._id === preSelectedEventId);
+      if (eventExists) {
+        setFormData(prev => ({
+          ...prev,
+          eventId: preSelectedEventId
+        }));
+      }
+    }
+  }, [preSelectedEventId, events]);
 
   // Function to automatically fill seats
   const autoFillSeats = async () => {
@@ -496,6 +517,16 @@ const CreateBookingForm = ({ isOpen, onClose, onSubmit, events = [], eventsLoadi
               </div>
             ))}
           </div>
+
+          {/* Seat Heat Map */}
+          {formData.eventId && (
+            <div className="mt-6">
+              <SeatHeatMap 
+                selectedEvent={events.find(event => event._id === formData.eventId)}
+                assignedSeats={formData.seats}
+              />
+            </div>
+          )}
 
           {/* Total */}
           <div className="bg-gray-50 rounded-md p-4">

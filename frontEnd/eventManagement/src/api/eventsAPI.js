@@ -60,17 +60,29 @@ const eventsAPI = {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      headers: headers
-    });
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch event');
+    try {
+      const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+        headers: headers
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('API Error Details:', {
+          status: response.status,
+          statusText: response.statusText,
+          message: data.message,
+          eventId: id,
+          url: `${API_BASE_URL}/events/${id}`
+        });
+        throw new Error(data.message || 'Failed to fetch event');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Network or API error for event ID:', id, error);
+      throw error;
     }
-    
-    return data;
   },
 
   // Update event

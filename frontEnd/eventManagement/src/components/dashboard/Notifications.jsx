@@ -1,12 +1,17 @@
 
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import NotificationsCard from "./NotificationsCard";
 
-// Icons for different notification types
-const cardIcon = "/assets/dashboard/Notifications/Card Payment.svg";
-const bankIcon = "/assets/dashboard/Notifications/Bank Building.svg";
-const alarmIcon = "/assets/dashboard/Notifications/Alarm Clock.svg";
 
 export default function Notifications({ notifications = [], loading }) {
+  const navigate = useNavigate();
+  
+  // Icons for different notification types
+  const cardIcon = "/assets/dashboard/Notifications/Card Payment.svg";
+  const bankIcon = "/assets/dashboard/Notifications/Bank Building.svg";
+  const alarmIcon = "/assets/dashboard/Notifications/Alarm Clock.svg";
+
   // Default notifications if no data
   const defaultNotifications = [
     {
@@ -46,20 +51,39 @@ export default function Notifications({ notifications = [], loading }) {
     }
   ];
 
-  const displayNotifications = notifications.length > 0 ? notifications : defaultNotifications;
-
   const getIcon = (type) => {
     switch (type) {
       case 'payment':
+      case 'booking_created':
         return cardIcon;
       case 'bank':
+      case 'event_created':
         return bankIcon;
       case 'reminder':
+      case 'event_upcoming':
+      case 'event_updated':
         return alarmIcon;
+      case 'booking_cancelled':
+        return cardIcon;
       default:
         return cardIcon;
     }
   };
+
+  // Map real notifications to dashboard format
+  const mapNotificationToCardFormat = (notification) => {
+    return {
+      id: notification._id || notification.id,
+      type: notification.type,
+      title: notification.title,
+      subtitle: notification.message || notification.description || "",
+      icon: getIcon(notification.type)
+    };
+  };
+
+  const displayNotifications = notifications.length > 0 
+    ? notifications.slice(0, 5).map(mapNotificationToCardFormat)
+    : defaultNotifications;
 
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 w-full h-full flex flex-col" style={{width: '256px'}}>
@@ -101,9 +125,12 @@ export default function Notifications({ notifications = [], loading }) {
       
       {/* See All Link */}
       <div className="w-full flex justify-end mt-3">
-        <a href="#" className="text-sm text-gray-600 underline hover:text-gray-800">
+        <button 
+          onClick={() => navigate('/notifications')}
+          className="text-sm text-gray-600 underline hover:text-gray-800 bg-transparent border-none cursor-pointer"
+        >
           See All
-        </a>
+        </button>
       </div>
     </div>
   );

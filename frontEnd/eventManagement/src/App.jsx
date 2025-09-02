@@ -12,6 +12,7 @@ import EventDetails from "./components/ManageEvents/EventDetails";
 import SearchEventDetails from "./pages/SearchEventDetails";
 import SearchSeeAll from "./pages/SearchSeeAll";
 import Booking from "./pages/Booking";
+import TicketPage from "./pages/TicketPage";
 import AttendeeInsights from "./pages/AttendeeInsights";
 import SingleAttendeeInsights from "./pages/SingleAttendeeInsights";
 import Analytics from "./pages/Analytics";
@@ -109,6 +110,7 @@ function AppContent() {
                 <Booking />
               </ProtectedRoute>
             } />
+            <Route path="/ticket/:bookingId" element={<TicketPage />} />
             <Route path="/attendee-insights" element={
               <ProtectedRoute>
                 <AttendeeInsights />

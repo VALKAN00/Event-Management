@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationContext";
 import { analyticsAPI } from "../api/analyticsAPI";
 import { bookingAPI } from "../api/bookingAPI";
 import eventsAPI from "../api/eventsAPI";
@@ -17,6 +18,7 @@ const icon3 = "/assets/dashboard/Transaction.svg";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { notifications, loading: notificationsLoading } = useNotifications();
   
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState({
@@ -339,8 +341,8 @@ export default function Dashboard() {
           </div>
           <div className="flex-1">
             <Notifications 
-              recentBookings={dashboardData.recentBookings}
-              loading={loading}
+              notifications={notifications}
+              loading={notificationsLoading}
             />
           </div>
         </div>

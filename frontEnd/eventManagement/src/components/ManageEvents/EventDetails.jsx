@@ -1,13 +1,14 @@
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+// import { useAuth } from "../../context/AuthContext";
 import eventsAPI from "../../api/eventsAPI";
+import EventQRCode from "../booking/EventQRCode";
 
 export default function EventDetails() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const { user } = useAuth(); // TODO: Can be used for authorization logic
+  // const { user } = useAuth(); // TODO: Can be used for authorization logic
   
   // State management
   const [event, setEvent] = useState(null);
@@ -70,7 +71,15 @@ export default function EventDetails() {
         }
       } catch (err) {
         console.error('Error fetching event:', err);
-        setError(err.message || 'Failed to fetch event details');
+        
+        // Handle specific error messages
+        let errorMessage = err.message || 'Failed to fetch event details';
+        if (err.message === 'Event date must be in the future') {
+          errorMessage = 'This event has a past date. Event viewing restrictions may apply.';
+          console.warn('Attempted to fetch past event with ID:', eventId);
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -724,27 +733,8 @@ export default function EventDetails() {
                 </div>
 
                 {/* QR Code Section */}
-                <div className="bg-gray-50 rounded-lg p-4 text-center flex justify-between items-center" style={{ border: "1px solid #ADADAD" }}>
-                  <div className="ml-5">
-                    <img
-                      src="/assets/EventDetails/frame 1.svg"
-                      alt="QR Code"
-                    />
-                  </div>
-                  <div className="flex flex-col items-start mr-10">
-                    <p
-                      className="text-gray-700"
-                      style={{ fontSize: "16px", fontWeight: "bold" }}
-                    >
-                      Scan QR code for easy
-                    </p>
-                    <p
-                      className="text-gray-700"
-                      style={{ fontSize: "16px", fontWeight: "bold" }}
-                    >
-                      payments
-                    </p>
-                  </div>
+                <div className="bg-gray-50 rounded-lg" style={{ border: "1px solid #ADADAD" }}>
+                  <EventQRCode event={event} size={120} />
                 </div>
                 
                 {/* Action Buttons */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import BookingQRCode from './BookingQRCode';
 
 const BookingCard = ({ booking, onSelect, onCancel, onCheckIn, onConfirm }) => {
   const getStatusColor = (status) => {
@@ -29,7 +30,7 @@ const BookingCard = ({ booking, onSelect, onCancel, onCheckIn, onConfirm }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow relative">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -44,30 +45,38 @@ const BookingCard = ({ booking, onSelect, onCancel, onCheckIn, onConfirm }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <p className="text-sm text-gray-600">Event Date</p>
-          <p className="text-sm font-medium text-gray-900">
-            {booking.event?.date ? formatDate(booking.event.date) : 'TBD'}
-          </p>
+      {/* Main content area with QR code positioning */}
+      <div className="relative">
+        <div className="grid grid-cols-2 gap-4 mb-4 pr-24">
+          <div>
+            <p className="text-sm text-gray-600">Event Date</p>
+            <p className="text-sm font-medium text-gray-900">
+              {booking.event?.date ? formatDate(booking.event.date) : 'TBD'}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Booking Date</p>
+            <p className="text-sm font-medium text-gray-900">
+              {formatDate(booking.bookingDate)}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Total Amount</p>
+            <p className="text-sm font-medium text-gray-900">
+              {booking.currency} {booking.totalAmount?.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Seats</p>
+            <p className="text-sm font-medium text-gray-900">
+              {booking.seats?.length || 0} seat(s)
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm text-gray-600">Booking Date</p>
-          <p className="text-sm font-medium text-gray-900">
-            {formatDate(booking.bookingDate)}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Total Amount</p>
-          <p className="text-sm font-medium text-gray-900">
-            {booking.currency} {booking.totalAmount?.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Seats</p>
-          <p className="text-sm font-medium text-gray-900">
-            {booking.seats?.length || 0} seat(s)
-          </p>
+
+        {/* QR Code positioned in the right side */}
+        <div className="absolute top-0 right-0">
+          <BookingQRCode booking={booking} size={80} />
         </div>
       </div>
 

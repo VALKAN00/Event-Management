@@ -40,7 +40,12 @@ const eventSchema = new mongoose.Schema({
     required: [true, 'Event date is required'],
     validate: {
       validator: function(value) {
-        return value > new Date();
+        // Only validate future date on new documents (creation)
+        // Allow past dates for existing documents (updates, saves)
+        if (this.isNew) {
+          return value > new Date();
+        }
+        return true;
       },
       message: 'Event date must be in the future'
     }

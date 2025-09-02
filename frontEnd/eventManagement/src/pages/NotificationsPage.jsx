@@ -88,9 +88,9 @@ export default function NotificationsPage() {
             <p className="text-gray-400 text-sm">Unread</p>
           </div>
           <img
-            src="/assets/header/Notification.png"
+            src="/assets/header/bell2.png"
             alt="Notifications"
-            className="w-20 h-20"
+            className="w-20 h-20 text-white"
           />
         </div>
       </div>

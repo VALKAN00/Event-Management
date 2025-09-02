@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 import { bookingAPI } from '../api/bookingAPI';
 import eventsAPI from '../api/eventsAPI';
 import BookingCard from '../components/booking/BookingCard';
@@ -9,10 +10,10 @@ import BookingFilters from '../components/booking/BookingFilters';
 import BookingStats from '../components/booking/BookingStats';
 import Pagination from '../components/booking/Pagination';
 import CreateBookingForm from '../components/booking/CreateBookingForm';
-import QRScanner from '../components/booking/QRScanner';
 
 export default function Booking() {
   const { user } = useAuth();
+  const location = useLocation();
   
   // State management
   const [bookings, setBookings] = useState([]);
@@ -23,9 +24,9 @@ export default function Booking() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showQRScanner, setShowQRScanner] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [bookingToConfirm, setBookingToConfirm] = useState(null);
+  const [preSelectedEventId, setPreSelectedEventId] = useState(null);
   
   // Pagination and filtering
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,6 +155,24 @@ export default function Booking() {
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Handle URL parameters for QR code navigation
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const eventId = urlParams.get('event') || urlParams.get('eventId'); // Handle both parameter names
+    const openModal = urlParams.get('openModal') === 'true';
+    
+    if (eventId) {
+      setPreSelectedEventId(eventId);
+      if (openModal) {
+        setShowCreateForm(true);
+      }
+      
+      // Clean up URL parameters after opening modal
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location.search]);
+
   // Handle filter changes
   const handleFilterChange = (field, value) => {
     if (field === 'reset') {
@@ -271,29 +290,6 @@ export default function Booking() {
     }
   };
 
-  // Handle QR code validation
-  const handleQRValidation = async (qrData) => {
-    try {
-      const response = await bookingAPI.validateQRCode(qrData);
-      
-      if (response.success) {
-        setSuccessMessage(`QR Code validated successfully for booking: ${response.data.bookingId}`);
-        setShowQRScanner(false);
-        
-        // Refresh bookings to show updated status
-        fetchBookings(currentPage, filters);
-        
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        throw new Error(response.message || 'Invalid QR code');
-      }
-    } catch (err) {
-      console.error('Error validating QR code:', err);
-      setErrorMessage(err.message || 'Failed to validate QR code');
-      setTimeout(() => setErrorMessage(''), 5000);
-    }
-  };
-
   // Handle check-in
   const handleCheckIn = async (bookingId) => {
     try {
@@ -363,15 +359,18 @@ export default function Booking() {
     const totalCheckedIn = bookings.filter(b => b.checkInDetails?.isCheckedIn).length;
     const totalRevenue = bookings
       .filter(b => ['confirmed', 'checked-in'].includes(b.status))
-      .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      .reduce((sum, b) => {
+        const amount = Number.isFinite(b.totalAmount) ? b.totalAmount : 0;
+        return sum + amount;
+      }, 0);
 
     return {
-      totalBookings: totalBookings,
+      totalBookings: Number.isFinite(totalBookings) ? totalBookings : 0,
       confirmedBookings: totalConfirmed,
       pendingBookings: totalPending,
       cancelledBookings: totalCancelled,
       checkedInBookings: totalCheckedIn,
-      totalRevenue: totalRevenue
+      totalRevenue: Number.isFinite(totalRevenue) ? totalRevenue : 0
     };
   };
 
@@ -395,17 +394,6 @@ export default function Booking() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h1 className="text-3xl font-bold text-gray-900">Booking Management</h1>
         <div className="flex gap-3">
-          {user?.role === 'admin' && (
-            <button
-              onClick={() => setShowQRScanner(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2m-6 0h-2m0 0h2m-4 0h2" />
-              </svg>
-              Scan QR
-            </button>
-          )}
           <button
             onClick={handleOpenCreateForm}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -517,6 +505,7 @@ export default function Booking() {
                       currentPage={currentPage}
                       totalPages={totalPages}
                       totalItems={totalBookings}
+                      itemsPerPage={10}
                       onPageChange={handlePageChange}
                     />
                   </div>
@@ -545,18 +534,14 @@ export default function Booking() {
       {showCreateForm && (
         <CreateBookingForm
           isOpen={showCreateForm}
-          onClose={() => setShowCreateForm(false)}
+          onClose={() => {
+            setShowCreateForm(false);
+            setPreSelectedEventId(null);
+          }}
           onSubmit={handleCreateBooking}
           events={events}
           eventsLoading={eventsLoading}
-        />
-      )}
-
-      {showQRScanner && user?.role === 'admin' && (
-        <QRScanner
-          isOpen={showQRScanner}
-          onClose={() => setShowQRScanner(false)}
-          onScan={handleQRValidation}
+          preSelectedEventId={preSelectedEventId}
         />
       )}
 

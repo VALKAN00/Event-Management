@@ -91,9 +91,15 @@ const getEvent = asyncHandler(async (req, res) => {
     return errorResponse(res, 'Event not found', 404);
   }
 
-  // Increment view count
+  // Increment view count using findByIdAndUpdate to avoid validation
+  await Event.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { 'analytics.totalViews': 1 } },
+    { runValidators: false }
+  );
+
+  // Update the event object to reflect the incremented view count
   event.analytics.totalViews += 1;
-  await event.save();
 
   successResponse(res, event, 'Event retrieved successfully');
 });
@@ -136,9 +142,9 @@ const createEvent = asyncHandler(async (req, res) => {
       return errorResponse(res, 'Valid ticket price is required', 400);
     }
 
-    // Validate date is in the future
+    // Validate date is in the future (except for admin users)
     const eventDate = new Date(req.body.date);
-    if (eventDate <= new Date()) {
+    if (eventDate <= new Date() && req.user.role !== 'admin') {
       console.log('Event date is in the past:', eventDate);
       return errorResponse(res, 'Event date must be in the future', 400);
     }
