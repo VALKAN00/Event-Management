@@ -295,80 +295,19 @@ VITE_API_URL=https://your-render-app.onrender.com/api
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow ESLint configuration
-- Write tests for new features
-- Update documentation as needed
-- Ensure responsive design principles
-
----
-
-## 📋 Roadmap
-
-### 🎯 Next Release (v2.0)
-- [ ] Mobile applications (iOS/Android)
-- [ ] Payment gateway integration (Stripe/PayPal)
-- [ ] Advanced analytics with AI insights
-- [ ] Multi-language support
-- [ ] Two-factor authentication
-
-### 🚀 Future Features
-- [ ] Virtual event support
-- [ ] Event marketplace
-- [ ] Vendor management
-- [ ] Social media integration
-- [ ] Custom branding options
-
----
 
 ## 📞 Support
 
 ### Getting Help
 - 📖 Read the [User Manual](USER_MANUAL.md)
 - 🔍 Check [API Documentation](API_DOCUMENTATION.md)
-- 🐛 Report issues on [GitHub Issues](https://github.com/VALKAN00/Event-Management/issues)
-- 💬 Join our community discussions
 
 ### Contact
-- **Email**: support@eventx-studio.com
+- **Email**: abdelrhmangaballah001@gmail.com
 - **GitHub**: [@VALKAN00](https://github.com/VALKAN00)
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **React Team** for the amazing frontend library
-- **Node.js Community** for the robust backend runtime
-- **MongoDB** for the flexible database solution
-- **Material UI** for the beautiful component library
-- **All Contributors** who have helped improve this project
-
----
 
 ## 📈 Project Stats
 
