@@ -4,7 +4,8 @@ export const debugUpcomingEvents = async () => {
     console.log('🔍 Starting upcoming events debug...');
     
     // Test direct API call
-    const response = await fetch('http://localhost:5000/api/events/upcoming?limit=5');
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://eventx-studio-backend.onrender.com/api';
+    const response = await fetch(`${apiUrl}/events/upcoming?limit=5`);
     const data = await response.json();
     
     console.log('📊 Raw API Response:', {
