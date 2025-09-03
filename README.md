@@ -318,7 +318,7 @@ VITE_API_URL=https://your-render-app.onrender.com/api
 ![GitHub issues](https://img.shields.io/github/issues/VALKAN00/Event-Management)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/VALKAN00/Event-Management)
 
-**Made with ❤️ by [VALKAN00](https://github.com/VALKAN00)**
+**Made with ❤️ by [Abdelrhman Ahmed Mohamed](https://github.com/VALKAN00)**
 
 *If you found this project helpful, please consider giving it a ⭐!*
 
