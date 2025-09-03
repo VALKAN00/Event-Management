@@ -2,15 +2,11 @@
 
 <div align="center">
 
-![EventX Studio Logo](https://img.shields.io/badge/EventX-Studio-blue?style=for-the-badge&logo=react)
-
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://sage-torrone-27fa1c.netlify.app)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-[![Build Status](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)](https://github.com/VALKAN00/Event-Management)
 
 **A comprehensive, full-stack event management system built with React and Node.js**
 
-[Live Demo](https://sage-torrone-27fa1c.netlify.app) • [API Documentation](API_DOCUMENTATION.md) • [User Manual](USER_MANUAL.md) • [Report Issue](https://github.com/VALKAN00/Event-Management/issues)
+[Live Demo](https://sage-torrone-27fa1c.netlify.app) • [API Documentation](API_DOCUMENTATION.md) • [User Manual](USER_MANUAL.md) •
 
 </div>
 
@@ -39,8 +35,7 @@ EventX Studio is a modern, full-featured event management platform that streamli
 🌟 **[Try EventX Studio Live](https://sage-torrone-27fa1c.netlify.app)**
 
 ### Demo Accounts
-- **Admin Access**: `admin@eventx.com` / `admin123`
-- **User Access**: `user@eventx.com` / `user123`
+- use demo accounts button in the login
 
 ---
 
@@ -300,80 +295,19 @@ VITE_API_URL=https://your-render-app.onrender.com/api
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow ESLint configuration
-- Write tests for new features
-- Update documentation as needed
-- Ensure responsive design principles
-
----
-
-## 📋 Roadmap
-
-### 🎯 Next Release (v2.0)
-- [ ] Mobile applications (iOS/Android)
-- [ ] Payment gateway integration (Stripe/PayPal)
-- [ ] Advanced analytics with AI insights
-- [ ] Multi-language support
-- [ ] Two-factor authentication
-
-### 🚀 Future Features
-- [ ] Virtual event support
-- [ ] Event marketplace
-- [ ] Vendor management
-- [ ] Social media integration
-- [ ] Custom branding options
-
----
 
 ## 📞 Support
 
 ### Getting Help
 - 📖 Read the [User Manual](USER_MANUAL.md)
 - 🔍 Check [API Documentation](API_DOCUMENTATION.md)
-- 🐛 Report issues on [GitHub Issues](https://github.com/VALKAN00/Event-Management/issues)
-- 💬 Join our community discussions
 
 ### Contact
-- **Email**: support@eventx-studio.com
+- **Email**: abdelrhmangaballah001@gmail.com
 - **GitHub**: [@VALKAN00](https://github.com/VALKAN00)
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **React Team** for the amazing frontend library
-- **Node.js Community** for the robust backend runtime
-- **MongoDB** for the flexible database solution
-- **Material UI** for the beautiful component library
-- **All Contributors** who have helped improve this project
-
----
 
 ## 📈 Project Stats
 
@@ -384,18 +318,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ![GitHub issues](https://img.shields.io/github/issues/VALKAN00/Event-Management)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/VALKAN00/Event-Management)
 
-**Made with ❤️ by [VALKAN00](https://github.com/VALKAN00)**
+**Made with ❤️ by [Abdelrhman Ahmed Mohamed](https://github.com/VALKAN00)**
 
 *If you found this project helpful, please consider giving it a ⭐!*
 
 </div>
 
----
-
-<div align="center">
-
-### 🌟 Star this repository if you found it helpful!
-
-[![Star History Chart](https://api.star-history.com/svg?repos=VALKAN00/Event-Management&type=Date)](https://star-history.com/#VALKAN00/Event-Management&Date)
-
-</div>
