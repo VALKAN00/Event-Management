@@ -146,28 +146,28 @@ export default function ContactSupport() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="flex space-x-1 bg-[#2a2a2a] p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('faq')}
-            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md transition-colors text-sm sm:text-base ${
               activeTab === 'faq'
                 ? 'bg-blue-600 text-white'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <span className="mr-2">❓</span>
+            <span className="mr-1 sm:mr-2">❓</span>
             FAQ
           </button>
           <button
             onClick={() => setActiveTab('contact')}
-            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
+            className={`flex-1 py-2 px-2 sm:px-4 rounded-md transition-colors text-sm sm:text-base ${
               activeTab === 'contact'
                 ? 'bg-blue-600 text-white'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <span className="mr-2">📝</span>
+            <span className="mr-1 sm:mr-2">📝</span>
             Contact Us
           </button>
         </div>
@@ -205,16 +205,16 @@ export default function ContactSupport() {
       {/* Contact Tab */}
       {activeTab === 'contact' && (
         <div>
-          <h2 className="text-xl font-semibold text-white mb-4">Send us a Message</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Send us a Message</h2>
           
           {submitStatus === 'success' && (
-            <div className="mb-6 p-4 bg-green-900 text-green-300 border border-green-700 rounded-lg">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-900 text-green-300 border border-green-700 rounded-lg text-sm sm:text-base">
               ✅ Your message has been sent successfully! We'll get back to you within 24 hours.
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
                   Full Name *
@@ -225,7 +225,7 @@ export default function ContactSupport() {
                   value={contactForm.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -240,13 +240,13 @@ export default function ContactSupport() {
                   value={contactForm.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Enter your email"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
                   Category *
@@ -256,7 +256,7 @@ export default function ContactSupport() {
                   value={contactForm.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 >
                   <option value="">Select a category</option>
                   {supportCategories.map((cat) => (
@@ -277,7 +277,7 @@ export default function ContactSupport() {
                   value={contactForm.subject}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Brief description of your issue"
                 />
               </div>
@@ -292,17 +292,17 @@ export default function ContactSupport() {
                 value={contactForm.message}
                 onChange={handleInputChange}
                 required
-                rows={6}
-                className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows={4}
+                className="w-full bg-[#2a2a2a] text-white border border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="Please describe your issue in detail. Include any error messages, steps to reproduce the problem, and any other relevant information."
               />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-center sm:justify-end">
               <button
                 type="submit"
                 disabled={submitStatus === 'sending'}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {submitStatus === 'sending' ? (
                   <>
@@ -320,9 +320,9 @@ export default function ContactSupport() {
           </form>
 
           {/* Additional Support Info */}
-          <div className="mt-8 p-4 bg-[#2a2a2a] rounded-lg">
-            <h3 className="text-white font-medium mb-2">💡 Tips for faster support:</h3>
-            <ul className="text-gray-300 text-sm space-y-1">
+          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-[#2a2a2a] rounded-lg">
+            <h3 className="text-white font-medium mb-2 text-sm sm:text-base">💡 Tips for faster support:</h3>
+            <ul className="text-gray-300 text-xs sm:text-sm space-y-1">
               <li>• Be specific about the issue you're experiencing</li>
               <li>• Include screenshots if applicable</li>
               <li>• Mention your browser and device type</li>

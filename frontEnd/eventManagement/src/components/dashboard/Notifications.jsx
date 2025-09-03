@@ -86,28 +86,28 @@ export default function Notifications({ notifications = [], loading }) {
     : defaultNotifications;
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 w-full h-full flex flex-col" style={{width: '256px'}}>
+    <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 w-full max-w-xs mx-auto flex flex-col h-full">
       {/* Header */}
-      <div className="flex justify-between items-center w-full mb-3">
-        <h2 className="text-lg font-bold text-gray-800">
+      <div className="flex justify-between items-center w-full mb-2">
+        <h2 className="text-sm sm:text-base font-bold text-gray-800">
           Notifications
         </h2>
-        <img src="/assets/dashboard/Upcoming/Arrow.svg" alt="Arrow" />
+        <img src="/assets/dashboard/Upcoming/Arrow.svg" alt="Arrow" className="w-3 h-3 sm:w-4 sm:h-4" />
       </div>
       
       {/* Divider */}
-      <hr className="border-gray-200 w-full mb-3" />
+      <hr className="border-gray-200 w-full mb-2" />
       
       {/* Notifications List */}
       <div className="w-full space-y-0 flex-1 overflow-hidden">
         {loading ? (
           // Loading skeleton
           Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex items-center gap-2 py-2 border-b border-gray-100 last:border-b-0">
-              <div className="animate-pulse bg-gray-200 w-5 h-5 rounded"></div>
+            <div key={index} className="flex items-center gap-2 py-1 sm:py-1.5 border-b border-gray-100 last:border-b-0">
+              <div className="animate-pulse bg-gray-200 w-3 h-3 sm:w-4 sm:h-4 rounded"></div>
               <div className="flex-1">
-                <div className="animate-pulse bg-gray-200 h-3 w-24 mb-1 rounded"></div>
-                <div className="animate-pulse bg-gray-200 h-2 w-16 rounded"></div>
+                <div className="animate-pulse bg-gray-200 h-2 sm:h-2.5 w-20 sm:w-24 mb-1 rounded"></div>
+                <div className="animate-pulse bg-gray-200 h-1.5 w-14 sm:w-16 rounded"></div>
               </div>
             </div>
           ))
@@ -124,10 +124,10 @@ export default function Notifications({ notifications = [], loading }) {
       </div>
       
       {/* See All Link */}
-      <div className="w-full flex justify-end mt-3">
+      <div className="w-full flex justify-end mt-1.5 sm:mt-2">
         <button 
           onClick={() => navigate('/notifications')}
-          className="text-sm text-gray-600 underline hover:text-gray-800 bg-transparent border-none cursor-pointer"
+          className="text-xs sm:text-sm text-gray-600 underline hover:text-gray-800 bg-transparent border-none cursor-pointer"
         >
           See All
         </button>

@@ -56,9 +56,9 @@ const AttendeeInterestsChart = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 h-full flex flex-col">
-      <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">ATTENDEE INTERESTS</h3>
-      
+    <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 h-full flex flex-col">
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-4 text-center">ATTENDEE INTERESTS</h3>
+
       <div className="flex-1 min-h-0 mb-2">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -68,8 +68,8 @@ const AttendeeInterestsChart = () => {
               cy="40%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={60}
-              innerRadius={35}
+              outerRadius={window.innerWidth < 640 ? 45 : 60}
+              innerRadius={window.innerWidth < 640 ? 25 : 35}
               fill="#8884d8"
               dataKey="value"
             >
@@ -83,14 +83,14 @@ const AttendeeInterestsChart = () => {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-y-1 gap-x-2 flex-shrink-0 mt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 gap-x-2 flex-shrink-0 mt-1">
         {data.map((entry, index) => (
           <div key={index} className="flex items-center gap-2">
             <div 
               className="w-3 h-3 rounded-full flex-shrink-0" 
               style={{ backgroundColor: entry.color }}
             ></div>
-            <span className="text-gray-700 text-xs font-medium truncate">{entry.name}</span>
+            <span className="text-gray-700 text-xs sm:text-sm font-medium truncate">{entry.name}</span>
           </div>
         ))}
       </div>

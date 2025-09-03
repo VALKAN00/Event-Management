@@ -90,8 +90,13 @@ const Register = () => {
       const response = await authAPI.register(registrationData);
       
       if (response.success) {
-        // Registration successful - redirect to dashboard
-        navigate('/dashboard');
+        // Navigate to login page after successful registration
+        navigate('/login', { 
+          state: { 
+            message: 'Account created successfully! Please sign in to continue.',
+            email: formData.email 
+          } 
+        });
       }
     } catch (error) {
       setErrors({
@@ -246,23 +251,6 @@ const Register = () => {
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                Account Type
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              >
-                <option value="user">Event Attendee</option>
-                <option value="admin">Event Organizer</option>
-              </select>
             </div>
           </div>
 

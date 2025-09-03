@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import authAPI from '../api/authAPI';
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    email: location.state?.email || '',
     password: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(location.state?.message || '');
 
   // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
+
+  // Clear success message after 5 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -70,8 +82,22 @@ const Login = () => {
       const response = await authAPI.login(formData);
       
       if (response.success) {
-        // Login successful - redirect to intended page or dashboard
-        navigate(from, { replace: true });
+        // Update AuthContext with user data
+        login(response.user);
+        
+        // Role-based redirect: Admin to Dashboard, User to Events
+        let redirectPath;
+        if (response.user.role === 'admin') {
+          redirectPath = '/dashboard';
+        } else if (response.user.role === 'user') {
+          redirectPath = '/manage-events'; // Events page
+        } else {
+          // Fallback for any other roles
+          redirectPath = from;
+        }
+        
+        // Navigate to role-specific page
+        navigate(redirectPath, { replace: true });
       }
     } catch (error) {
       if (error.message.includes('Invalid credentials')) {
@@ -111,6 +137,13 @@ const Login = () => {
 
         {/* Login Form */}
         <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
+          {/* Success Message from Registration */}
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+              {successMessage}
+            </div>
+          )}
+
           {/* Submit Error Message */}
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -177,32 +210,6 @@ const Login = () => {
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-            </div>
-          </div>
-
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link 
-                to="/forgot-password" 
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out"
-              >
-                Forgot your password?
-              </Link>
             </div>
           </div>
 

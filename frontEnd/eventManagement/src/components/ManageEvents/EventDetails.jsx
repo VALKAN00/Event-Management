@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-// import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import eventsAPI from "../../api/eventsAPI";
 import EventQRCode from "../booking/EventQRCode";
 
@@ -8,7 +8,7 @@ export default function EventDetails() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  // const { user } = useAuth(); // TODO: Can be used for authorization logic
+  const { user } = useAuth(); // Uncommented for role-based access control
   
   // State management
   const [event, setEvent] = useState(null);
@@ -62,8 +62,8 @@ export default function EventDetails() {
             }
           });
           
-          // Auto-start edit mode if requested from EventCard
-          if (shouldStartInEditMode) {
+          // Auto-start edit mode if requested from EventCard (only for admins)
+          if (shouldStartInEditMode && user?.role === 'admin') {
             setIsEditing(true);
           }
         } else {
@@ -86,7 +86,7 @@ export default function EventDetails() {
     };
 
     fetchEventData();
-  }, [eventId, shouldStartInEditMode]);
+  }, [eventId, shouldStartInEditMode, user?.role]);
 
   // Additional state for edit validation and success messages
   const [editError, setEditError] = useState(null);
@@ -219,6 +219,12 @@ export default function EventDetails() {
 
   // Handle starting edit mode
   const handleStartEdit = () => {
+    // Only allow admins to edit
+    if (user?.role !== 'admin') {
+      console.warn('Only admin users can edit events');
+      return;
+    }
+    
     setIsEditing(true);
     setEditError(null);
     setEditSuccess(null);
@@ -331,7 +337,7 @@ export default function EventDetails() {
   const Seat = ({ status, index }) => (
     <div
       key={index}
-      className="w-6 h-6 rounded-md mx-0.5 my-0.5"
+      className="w-4 h-4 sm:w-6 sm:h-6 rounded-md mx-0.5 my-0.5"
       style={{
         backgroundColor: getSeatColor(status),
         transition: "all 0.2s ease",
@@ -342,17 +348,17 @@ export default function EventDetails() {
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-center px-6 py-4 border-b border-gray-200 relative ">
+      <div className="flex items-center justify-center px-4 sm:px-6 py-4 border-b border-gray-200 relative">
         <button
           onClick={() => navigate(-1)}
-          className="cursor-pointer absolute left-6 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+          className="cursor-pointer absolute left-4 sm:left-6 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
         >
           <img
             src="/assets/EventDetails/Back Arrow.svg"
             alt="Back"
           />
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">Event Details</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Event Details</h1>
       </div>
 
       {/* Loading State */}
@@ -386,12 +392,12 @@ export default function EventDetails() {
 
       {/* Event Content */}
       {!loading && !error && event && (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Success Message */}
           {editSuccess && (
             <div className="mb-4 bg-green-50 border border-green-300 rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-green-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <p className="text-green-800 font-medium">{editSuccess}</p>
@@ -403,7 +409,7 @@ export default function EventDetails() {
           {editError && (
             <div className="mb-4 bg-red-50 border border-red-300 rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 <p className="text-red-800 font-medium">{editError}</p>
@@ -411,11 +417,11 @@ export default function EventDetails() {
             </div>
           )}
 
-        <div className="flex gap-6 ">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Section - Event Details */}
           <div className="flex-1 space-y-4">
             {/* Top Row - Event Name and Event Date */}
-            <div className="flex gap-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Event Name
@@ -440,7 +446,7 @@ export default function EventDetails() {
                   )}
                 </div>
               </div>
-              <div className="w-72">
+              <div className="flex-1 sm:w-72 sm:flex-none">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Event Date
                 </label>
@@ -461,7 +467,7 @@ export default function EventDetails() {
             </div>
 
             {/* Second Row - Event Venue and Event Time */}
-            <div className="flex gap-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Event Venue
@@ -494,7 +500,7 @@ export default function EventDetails() {
                   )}
                 </div>
               </div>
-              <div className="w-72">
+              <div className="flex-1 sm:w-72 sm:flex-none">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Event Time
                 </label>
@@ -530,10 +536,10 @@ export default function EventDetails() {
               />
             </div>
 
-            {/* Statistics Row - 4 columns */}
-            <div className="flex gap-4">
+            {/* Statistics Row - Responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Ticket Price */}
-              <div className="flex-1">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ticket Price
                 </label>
@@ -565,7 +571,7 @@ export default function EventDetails() {
               </div>
 
               {/* Seat Amount */}
-              <div className="flex-1">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Seat Amount
                 </label>
@@ -585,7 +591,7 @@ export default function EventDetails() {
               </div>
 
               {/* Available Seats */}
-              <div className="flex-1">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Available Seats
                 </label>
@@ -605,7 +611,7 @@ export default function EventDetails() {
               </div>
 
               {/* Popularity */}
-              <div className="flex-1">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Popularity
                 </label>
@@ -626,18 +632,15 @@ export default function EventDetails() {
             </div>
 
             {/* Bottom Row - Seat Allocation and Right Side */}
-            <div className="flex gap-6 ">
+            <div className="flex flex-col lg:flex-row gap-6 ">
               {/* Seat Allocation */}
-              <div
-                className="flex-1 bg-gray-50 rounded-lg p-4 "
-                style={{ width: "60%" }}
-              >
+              <div className="flex-1 lg:w-3/5 bg-gray-50 rounded-lg p-4 border-1 border-gray-300">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
                   Seat Allocation
                 </h3>
 
                 {/* Legend */}
-                <div className="flex items-center gap-6 mb-4">
+                <div className="flex flex-wrap items-center  justify-center gap-4 mb-4">
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded"
@@ -668,7 +671,7 @@ export default function EventDetails() {
                 </div>
 
                 {/* Seat Map */}
-                <div className="flex justify-center">
+                <div className="flex justify-center overflow-x-auto">
                   <div className="inline-block">
                     {seatData.map((row, rowIndex) => (
                       <div key={rowIndex} className="flex justify-center mb-1">
@@ -686,13 +689,10 @@ export default function EventDetails() {
               </div>
 
               {/* Right Side Elements */}
-              <div className="w-72 space-y-4" style={{ width: "40%" }}>
-                <div
-                  className="flex justify-between items-center gap-10"
-                  style={{ width: "100%" }}
-                >
+              <div className="flex-1 lg:w-2/5 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
                   {/* Tags */}
-                  <div className="flex-1">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Tags
                     </label>
@@ -712,7 +712,7 @@ export default function EventDetails() {
                   </div>
 
                   {/* Expected Attendance */}
-                  <div className="flex-1">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Expected Attendance
                     </label>
@@ -733,28 +733,25 @@ export default function EventDetails() {
                 </div>
 
                 {/* QR Code Section */}
-                <div className="bg-gray-50 rounded-lg" style={{ border: "1px solid #ADADAD" }}>
-                  <EventQRCode event={event} size={120} />
+                <div className="bg-gray-50 rounded-lg flex justify-center" style={{ border: "1px solid #ADADAD" }}>
+                  <EventQRCode event={event} size={window.innerWidth < 640 ? 80 : 120} />
                 </div>
                 
                 {/* Action Buttons */}
-                <div
-                  className="flex items-center justify-between gap-4 pt-2"
-                  style={{ width: "100%" }}
-                >
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                   {isEditing ? (
                     <>
                       <button 
                         onClick={handleCancelEdit}
                         disabled={isSaving}
-                        className="cursor-pointer flex-1 px-6 py-2 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        className="cursor-pointer w-full sm:flex-1 px-6 py-2 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                       >
                         CANCEL
                       </button>
                       <button 
                         onClick={handleSaveEdit}
                         disabled={isSaving}
-                        className="cursor-pointer flex-1 px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2"
+                        className="cursor-pointer w-full sm:flex-1 px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2"
                       >
                         {isSaving && (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -764,18 +761,23 @@ export default function EventDetails() {
                     </>
                   ) : (
                     <>
-                      <button 
-                        onClick={handleStartEdit}
-                        className="cursor-pointer flex-1 px-6 py-2 bg-[#CF730A] text-white rounded-lg font-medium hover:bg-[#ac5e05] transition-colors text-sm"
-                      >
-                        EDIT
-                      </button>
-                      <button 
-                        onClick={() => navigate('/Single_Attendee_Insights', { state: { event: eventData } })}
-                        className="cursor-pointer flex-1 px-6 py-2 bg-[#1A6291] text-white rounded-lg font-medium hover:bg-[#175680] transition-colors text-sm"
-                      >
-                        Attendee Insights
-                      </button>
+                      {/* Only show EDIT and Attendee Insights buttons for admin users */}
+                      {user?.role === 'admin' && (
+                        <>
+                          <button 
+                            onClick={handleStartEdit}
+                            className="cursor-pointer w-full sm:flex-1 px-6 py-2 bg-[#CF730A] text-white rounded-lg font-medium hover:bg-[#ac5e05] transition-colors text-sm"
+                          >
+                            EDIT
+                          </button>
+                          <button 
+                            onClick={() => navigate('/Single_Attendee_Insights', { state: { event: eventData } })}
+                            className="cursor-pointer w-full sm:flex-1 px-6 py-2 bg-[#1A6291] text-white rounded-lg font-medium hover:bg-[#175680] transition-colors text-sm"
+                          >
+                            Attendee Insights
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

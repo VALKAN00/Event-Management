@@ -11,6 +11,7 @@ export default function Header() {
     const [showDropdown, setShowDropdown] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+    const [showMobileSearch, setShowMobileSearch] = useState(false);
     const navigate = useNavigate();
     const { unreadCount } = useNotifications();
     const dropdownRef = useRef(null);
@@ -35,13 +36,39 @@ export default function Header() {
             }
         };
 
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setShowMobileSearch(false);
+                setShowDropdown(false);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleEscape);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscape);
+        };
     }, []);
+
+    // Handle body scroll lock for mobile search
+    useEffect(() => {
+        if (showMobileSearch) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        // Cleanup on unmount
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showMobileSearch]);
 
     // Search for events when query changes
     useEffect(() => {
         const searchEvents = async () => {
+            
             if (searchQuery.trim().length >= 2) {
                 setIsSearching(true);
                 try {
@@ -175,7 +202,12 @@ export default function Header() {
     };
 
     return (
-        <div className="bg-[#111111] text-white px-6 py-3 flex items-center justify-between" style={{width:"100%", height:"80px",borderRadius:"20px"}}>
+        <div className="bg-[#111111] text-white px-6 py-3 flex items-center justify-between" 
+             style={{
+                 width:"100%", 
+                 height:"80px",
+                 borderRadius:"20px"
+             }}>
             {/* Left side - User Info */}
             <div className="flex items-center gap-3">
                 {currentUser ? (
@@ -212,7 +244,7 @@ export default function Header() {
             {/* Right side - Search and Icons */}
             <div className="flex items-center gap-4">
                 {/* Search Bar */}
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative hidden md:block" ref={dropdownRef}>
                     <form onSubmit={handleSearchSubmit} className="relative">
                         <div className="relative flex items-center">
                             <img 
@@ -226,7 +258,7 @@ export default function Header() {
                                 placeholder="Search events..."
                                 value={searchQuery}
                                 onChange={handleSearchChange}
-                                className="bg-white text-black pl-10 pr-4 py-2 rounded-lg w-80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="bg-white text-black pl-10 pr-4 py-2 rounded-lg w-80 lg:w-80 md:w-60 sm:w-48 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {isSearching && (
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -299,6 +331,18 @@ export default function Header() {
                     )}
                 </div>
 
+                {/* Mobile Search Button */}
+                <button
+                    onClick={() => setShowMobileSearch(!showMobileSearch)}
+                    className="md:hidden cursor-pointer p-2 bg-white hover:bg-blue-600 rounded-full transition-all duration-200 group"
+                >
+                    <img 
+                        src="/assets/header/Search.png" 
+                        alt="Search" 
+                        className="w-6 h-6 group-hover:brightness-0 group-hover:invert transition-all duration-200"
+                    />
+                </button>
+
                 {/* Notification Icon */}
                 <button 
                     onClick={() => navigate('/notifications')}
@@ -318,14 +362,101 @@ export default function Header() {
                 </button>
 
                 {/* Event Status Icon */}
-                <button className="cursor-pointer p-2 bg-white hover:bg-green-600 rounded-full transition-all duration-200 group">
+                <button 
+                    onClick={() => navigate('/booking-tickets')}
+                    className="cursor-pointer p-2 bg-white hover:bg-green-600 rounded-full transition-all duration-200 group"
+                >
                     <img 
                         src="/assets/header/Event Accepted.png" 
-                        alt="Events" 
+                        alt="Booking Tickets" 
                         className="w-6 h-6 group-hover:brightness-0 group-hover:invert transition-all duration-200"
                     />
                 </button>
             </div>
+            
+            {/* Mobile Search Bar - Full Width Overlay */}
+            {showMobileSearch && (
+                <div className="md:hidden fixed top-0 left-0 right-0 bg-[#111111] p-4 z-50">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowMobileSearch(false)}
+                            className="text-white"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <form onSubmit={handleSearchSubmit} className="flex-1">
+                            <div className="relative flex items-center">
+                                <img 
+                                    src="/assets/header/Search.png" 
+                                    alt="Search" 
+                                    className="cursor-pointer absolute left-3 w-4 h-4 opacity-60"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Search events..."
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    className="bg-white text-black pl-10 pr-4 py-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    autoFocus
+                                />
+                            </div>
+                        </form>
+                    </div>
+                    
+                    {/* Mobile Search Results */}
+                    {showDropdown && (
+                        <div className="bg-white border border-gray-200 rounded-lg shadow-lg mt-2 max-h-80 overflow-y-auto">
+                            {searchResults.length > 0 ? (
+                                <>
+                                    <div className="px-4 py-2 text-sm text-gray-500 border-b">
+                                        Top {searchResults.length} results for "{searchQuery}"
+                                    </div>
+                                    {searchResults.map((event) => (
+                                        <div
+                                            key={event._id}
+                                            onClick={() => {
+                                                handleEventClick(event._id);
+                                                setShowMobileSearch(false);
+                                            }}
+                                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-white text-xs font-bold">
+                                                        {(event.name || event.title) ? (event.name || event.title).charAt(0).toUpperCase() : 'E'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-semibold text-gray-900 truncate">
+                                                        {event.name || event.title || 'Untitled Event'}
+                                                    </h4>
+                                                    <p className="text-xs text-gray-600 truncate">
+                                                        {event.description}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                                            {event.categories && event.categories.length > 0 ? event.categories[0] : 'Event'}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {new Date(event.date).toLocaleDateString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            ) : searchQuery.trim().length >= 2 && !isSearching ? (
+                                <div className="px-4 py-8 text-center text-gray-500">
+                                    <div className="text-sm">No events found for "{searchQuery}"</div>
+                                </div>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

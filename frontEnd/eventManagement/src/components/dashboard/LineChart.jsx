@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange }) => {
+const NetSalesChart = ({ data = [], loading, period = 'week', onPeriodChange }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [chartReady, setChartReady] = useState(false);
   const dropdownRef = useRef(null);
+  const chartContainerRef = useRef(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -18,6 +20,26 @@ const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange })
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Check if chart container has dimensions
+  useEffect(() => {
+    const checkDimensions = () => {
+      if (chartContainerRef.current) {
+        const { offsetWidth, offsetHeight } = chartContainerRef.current;
+        if (offsetWidth > 0 && offsetHeight > 0) {
+          setChartReady(true);
+        }
+      }
+    };
+
+    // Check immediately
+    checkDimensions();
+
+    // Set a timeout to check again in case of delayed rendering
+    const timer = setTimeout(checkDimensions, 100);
+
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   // Filter options for the chart
   const filterOptions = [
@@ -74,20 +96,20 @@ const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange })
     const { cx, cy, payload } = props;
     return (
       <g>
-        <circle cx={cx} cy={cy} r={3} fill="#ef4444" stroke="#ffffff" strokeWidth={1} />
+        <circle cx={cx} cy={cy} r={2} fill="#ef4444" stroke="#ffffff" strokeWidth={1} className="sm:r-3" />
         <text 
           x={cx} 
-          y={cy - 30} 
+          y={cy - 20} 
           textAnchor="middle" 
-          className="text-xs font-semibold fill-gray-700"
+          className="text-xs font-semibold fill-gray-700 hidden sm:block"
         >
           {(payload.value / 1000).toFixed(0)}k
         </text>
         <text 
           x={cx} 
-          y={cy - 12} 
+          y={cy - 8} 
           textAnchor="middle" 
-          className="text-xs fill-gray-500"
+          className="text-xs fill-gray-500 hidden sm:block"
         >
           {payload.percentage || 0}%
         </text>
@@ -97,36 +119,36 @@ const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange })
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-blue-200 p-4 w-full" style={{ height: '340px' }}>
+      <div className="bg-white rounded-lg border border-blue-200 p-3 sm:p-4 w-full min-h-[280px] sm:min-h-[340px]">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="animate-pulse bg-gray-200 h-6 w-32 rounded"></div>
-          <div className="animate-pulse bg-gray-200 h-6 w-20 rounded-full"></div>
+        <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <div className="animate-pulse bg-gray-200 h-5 sm:h-6 w-24 sm:w-32 rounded"></div>
+          <div className="animate-pulse bg-gray-200 h-5 sm:h-6 w-16 sm:w-20 rounded-full"></div>
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index}>
-              <div className="animate-pulse bg-gray-200 h-3 w-20 mb-1 rounded"></div>
-              <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>
+            <div key={index} className="text-center sm:text-left">
+              <div className="animate-pulse bg-gray-200 h-3 w-16 sm:w-20 mb-1 rounded mx-auto sm:mx-0"></div>
+              <div className="animate-pulse bg-gray-200 h-4 w-12 sm:w-16 rounded mx-auto sm:mx-0"></div>
             </div>
           ))}
         </div>
 
         {/* Chart placeholder */}
-        <div className="h-40 bg-gray-100 rounded-lg animate-pulse"></div>
+        <div className="h-32 sm:h-40 bg-gray-100 rounded-lg animate-pulse"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-blue-200 p-4 w-full" style={{ height: '340px' }}>
+    <div className="bg-white rounded-lg border border-blue-200 p-3 sm:p-4 w-full min-h-[280px] sm:min-h-[340px]">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-gray-800">NET SALES</h2>
-          <svg width="10" height="6" viewBox="0 0 12 8" fill="none" className="text-gray-400">
+          <h2 className="text-base sm:text-lg font-bold text-gray-800">NET SALES</h2>
+          <svg width="8" height="5" viewBox="0 0 12 8" fill="none" className="text-gray-400 sm:w-3 sm:h-2">
             <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
@@ -134,16 +156,17 @@ const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange })
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center bg-black text-white px-3 py-1 rounded-full hover:bg-gray-800 transition-colors"
+            className="flex items-center bg-black text-white px-2 sm:px-3 py-1 rounded-full hover:bg-gray-800 transition-colors"
           >
             <img 
               src="/assets/dashboard/LineChart/Filter.svg" 
               alt="Filter" 
-              className="w-3 h-3 mr-1"
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1"
             />
-            <span className="text-xs font-medium">Filter: {period}</span>
+            <span className="text-xs font-medium hidden sm:inline">Filter: </span>
+            <span className="text-xs font-medium">{period}</span>
             <svg 
-              className={`w-3 h-3 ml-1 transition-transform ${showDropdown ? 'rotate-180' : ''}`} 
+              className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ml-1 transition-transform ${showDropdown ? 'rotate-180' : ''}`} 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -176,57 +199,65 @@ const NetSalesChart = ({ data = [], loading, period = 'month', onPeriodChange })
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4">
+        <div className="text-center sm:text-left">
           <p className="text-gray-500 text-xs">Total Revenue</p>
           <p className="text-red-500 text-sm font-bold">{totalRevenue.toLocaleString()} LKR</p>
         </div>
-        <div>
+        <div className="text-center sm:text-left">
           <p className="text-gray-500 text-xs">Total Tickets</p>
           <p className="text-red-500 text-sm font-bold">{totalTickets.toLocaleString()} Tickets</p>
         </div>
-        <div>
+        <div className="text-center sm:text-left">
           <p className="text-gray-500 text-xs">Total Events</p>
           <p className="text-red-500 text-sm font-bold">{totalEvents.toLocaleString()} Events</p>
         </div>
       </div>
 
       {/* Chart */}
-      <div className="h-40">
-        <ResponsiveContainer width="100%" height="100%">
-          <RechartsLineChart
-            data={chartData}
-            margin={{
-              top: 30,
-              right: 30,
-              left: 0,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="name" 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: '#9ca3af' }}
-            />
-            <YAxis 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: '#9ca3af' }}
-              tickFormatter={(value) => `${value / 1000}k`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="linear"
-              dataKey="value"
-              stroke="#ef4444"
-              strokeWidth={3}
-              dot={<CustomDot />}
-              activeDot={{ r: 6, fill: '#ef4444', stroke: '#ffffff', strokeWidth: 2 }}
-            />
-          </RechartsLineChart>
-        </ResponsiveContainer>
+      <div ref={chartContainerRef} className="h-32 sm:h-40" style={{ minHeight: '128px' }}>
+        {chartReady ? (
+          <ResponsiveContainer width="100%" height="100%" minHeight={128}>
+            <RechartsLineChart
+              data={chartData}
+              margin={{
+                top: 30,
+                right: 10,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#9ca3af' }}
+                className="sm:text-xs"
+              />
+              <YAxis 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#9ca3af' }}
+                className="sm:text-xs"
+                tickFormatter={(value) => `${value / 1000}k`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="linear"
+                dataKey="value"
+                stroke="#ef4444"
+                strokeWidth={2}
+                dot={<CustomDot />}
+                activeDot={{ r: 4, fill: '#ef4444', stroke: '#ffffff', strokeWidth: 2 }}
+              />
+            </RechartsLineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+            <span className="text-gray-500 text-sm">Loading chart...</span>
+          </div>
+        )}
       </div>
     </div>
   );

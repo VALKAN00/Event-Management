@@ -195,9 +195,9 @@ const cancelBooking = asyncHandler(async (req, res) => {
     return errorResponse(res, 'Not authorized to cancel this booking', 401);
   }
 
-  // Check if booking can be cancelled
-  if (['cancelled', 'refunded', 'checked-in'].includes(booking.status)) {
-    return errorResponse(res, 'Booking cannot be cancelled', 400);
+  // Check if booking can be cancelled (only pending bookings can be cancelled)
+  if (!['pending'].includes(booking.status)) {
+    return errorResponse(res, 'Only pending bookings can be cancelled', 400);
   }
 
   // Check if event date is in the future (allow cancellation up to 24 hours before)

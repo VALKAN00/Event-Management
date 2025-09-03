@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const CustomerEngagementChart = ({ data = [], loading = false }) => {
+  const [chartReady, setChartReady] = useState(false);
+  const chartContainerRef = useRef(null);
+
+  // Check if chart container has dimensions
+  useEffect(() => {
+    const checkDimensions = () => {
+      if (chartContainerRef.current) {
+        const { offsetWidth, offsetHeight } = chartContainerRef.current;
+        if (offsetWidth > 0 && offsetHeight > 0) {
+          setChartReady(true);
+        }
+      }
+    };
+
+    // Check immediately
+    checkDimensions();
+
+    // Set a timeout to check again in case of delayed rendering
+    const timer = setTimeout(checkDimensions, 100);
+
+    return () => clearTimeout(timer);
+  }, [loading]);
   // Diverse color palette for different events
   const eventColors = [
     '#8b5cf6', // Purple
@@ -95,48 +117,55 @@ const CustomerEngagementChart = ({ data = [], loading = false }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 w-full" style={{ height: '340px' }}>
+    <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 w-full min-h-[280px] sm:min-h-[340px]">
       {/* Header */}
-      <h2 className="text-lg font-bold text-gray-800 text-center mb-3">
+      <h2 className="text-base sm:text-lg font-bold text-gray-800 text-center mb-2 sm:mb-3">
         Customer Engagement
       </h2>
 
       {loading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="flex items-center justify-center h-32 sm:h-48">
+          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-500"></div>
         </div>
       ) : (
         <>
           {/* Chart */}
-      <div className="h-48 mb-3">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={80}
-              innerRadius={40}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+      <div ref={chartContainerRef} className="h-35 sm:h-48 mb-2 sm:mb-3" style={{ minHeight: '128px' }}>
+        {chartReady ? (
+          <ResponsiveContainer width="100%" height="100%" minHeight={128}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={70}
+                innerRadius={30}
+                fill="#8884d8"
+                dataKey="value"
+                className="sm:outerRadius-80 sm:innerRadius-40"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+            <span className="text-gray-500 text-sm">Loading chart...</span>
+          </div>
+        )}
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 sm:gap-y-2 gap-x-2 sm:gap-x-4">
         {chartData.map((entry, index) => (
           <div key={index} className="flex items-center gap-2">
             <div 
-              className="w-3 h-3 rounded-full flex-shrink-0" 
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" 
               style={{ backgroundColor: entry.color }}
             ></div>
             <span className="text-gray-700 text-xs font-medium truncate">{entry.name}</span>

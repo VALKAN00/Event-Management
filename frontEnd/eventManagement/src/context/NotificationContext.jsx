@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import notificationsAPI from '../api/notificationsAPI';
-import { getCurrentUser } from '../api/authAPI';
+import { useAuth } from './AuthContext';
 
 const NotificationContext = createContext();
 
@@ -17,10 +17,10 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   // Initialize socket connection
   useEffect(() => {
-    const user = getCurrentUser();
     if (user) {
       const newSocket = io('http://localhost:5000', {
         auth: {
@@ -54,10 +54,16 @@ export const NotificationProvider = ({ children }) => {
       return () => {
         newSocket.disconnect();
       };
+    } else {
+      // Clear notifications when user logs out
+      setNotifications([]);
+      setUnreadCount(0);
     }
-  }, []);
+  }, [user]);
 
   const fetchNotifications = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     try {
       setLoading(true);
       const response = await notificationsAPI.getNotifications();
@@ -67,29 +73,35 @@ export const NotificationProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const fetchUnreadCount = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     try {
       const response = await notificationsAPI.getUnreadCount();
       setUnreadCount(response.count || 0);
     } catch (error) {
       console.error('Error fetching unread count:', error);
     }
-  }, []);
+  }, [user]);
 
-  // Fetch initial notifications
+  // Fetch initial notifications only when user is authenticated
   useEffect(() => {
-    fetchNotifications();
-    fetchUnreadCount();
-    
-    // Request notification permission
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
+    if (user) {
+      fetchNotifications();
+      fetchUnreadCount();
+      
+      // Request notification permission
+      if (Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
     }
-  }, [fetchNotifications, fetchUnreadCount]);
+  }, [fetchNotifications, fetchUnreadCount, user]);
 
   const markAsRead = useCallback(async (notificationId) => {
+    if (!user) return; // Don't proceed if not authenticated
+    
     try {
       await notificationsAPI.markAsRead(notificationId);
       setNotifications(prev => 
@@ -103,9 +115,11 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
-  }, []);
+  }, [user]);
 
   const markAllAsRead = useCallback(async () => {
+    if (!user) return; // Don't proceed if not authenticated
+    
     try {
       await notificationsAPI.markAllAsRead();
       setNotifications(prev => 
@@ -115,7 +129,7 @@ export const NotificationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }
-  }, []);
+  }, [user]);
 
   const deleteNotification = useCallback(async (notificationId) => {
     try {

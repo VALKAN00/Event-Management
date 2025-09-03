@@ -491,7 +491,7 @@ export default function Booking() {
                       key={booking._id}
                       booking={booking}
                       onSelect={() => handleBookingSelect(booking)}
-                      onCancel={user?.role === 'admin' ? handleCancelBooking : undefined}
+                      onCancel={handleCancelBooking}
                       onCheckIn={user?.role === 'admin' ? handleCheckIn : undefined}
                       onConfirm={handleConfirmBooking}
                     />
@@ -525,7 +525,7 @@ export default function Booking() {
             setShowDetailsModal(false);
             setSelectedBooking(null);
           }}
-          onCancel={user?.role === 'admin' ? handleCancelBooking : undefined}
+          onCancel={handleCancelBooking}
           onCheckIn={user?.role === 'admin' ? handleCheckIn : undefined}
           onConfirm={handleConfirmBooking}
         />

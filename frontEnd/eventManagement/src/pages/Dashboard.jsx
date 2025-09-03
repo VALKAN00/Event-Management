@@ -45,7 +45,7 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [period, setPeriod] = useState('year');
+  const [period, setPeriod] = useState('week');
   const [isSocketConnected, setIsSocketConnected] = useState(false);
 
   // Fetch dashboard data
@@ -264,13 +264,13 @@ export default function Dashboard() {
       )}
 
       {/* Main Grid Container */}
-      <div className="grid grid-cols-12 gap-4 h-full p-4">
+      <div className="p-3 sm:p-4">
         
-        {/* Left Content Area - spans 9 columns */}
-        <div className="col-span-9 flex flex-col h-full">
+        {/* Mobile Layout (< 1024px) */}
+        <div className="lg:hidden space-y-4">
           
-          {/* Top Row - Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-4 flex-shrink-0">
+          {/* 1. Stats Cards - 3 cards on top */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <NormalCard
               icon={icon1}
               title="EVENTS"
@@ -300,50 +300,135 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Middle Row - Charts */}
-          <div className="grid grid-cols-5 gap-4 h-90 flex-shrink-0">
-            {/* Net Sales Chart - spans 3 columns */}
-            <div className="col-span-3 h-full">
-              <NetSalesChart 
-                data={dashboardData.revenueData.dailyRevenue}
-                loading={loading}
-                period={period}
-                onPeriodChange={setPeriod}
-              />
-            </div>
-            
-            {/* Customer Engagement Chart - spans 2 columns */}
-            <div className="col-span-2 h-full">
-              <CustomerEngagementChart 
-                data={dashboardData.customerEngagement}
-                loading={loading}
-              />
-            </div>
+          {/* 2. Line Chart */}
+          <div className="w-full">
+            <NetSalesChart 
+              data={dashboardData.revenueData.dailyRevenue}
+              loading={loading}
+              period={period}
+              onPeriodChange={setPeriod}
+            />
           </div>
 
-          {/* Bottom Row - Latest Event Heat Map */}
-          <div className="flex-1 min-h-0">
+          {/* 3. Donut Chart */}
+          <div className="w-full">
+            <CustomerEngagementChart 
+              data={dashboardData.customerEngagement}
+              loading={loading}
+            />
+          </div>
+
+          {/* 4. Heat Map */}
+          <div className="w-full">
             <LatestEventHeatMap 
               events={dashboardData.upcomingEvents}
               loading={loading}
             />
           </div>
+
+          {/* 5. Upcoming Events and Notifications - same row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="w-full">
+              <UpComing 
+                events={dashboardData.upcomingEvents}
+                loading={loading}
+              />
+            </div>
+            <div className="w-full">
+              <Notifications 
+                notifications={notifications}
+                loading={notificationsLoading}
+              />
+            </div>
+          </div>
           
         </div>
 
-        {/* Right Sidebar - spans 3 columns */}
-        <div className="col-span-3 h-full flex flex-col">
-          <div className="flex-1 mb-4">
-            <UpComing 
-              events={dashboardData.upcomingEvents}
-              loading={loading}
-            />
-          </div>
-          <div className="flex-1">
-            <Notifications 
-              notifications={notifications}
-              loading={notificationsLoading}
-            />
+        {/* Desktop Layout (>= 1024px) - Original Layout */}
+        <div className="hidden lg:block">
+          <div className="grid grid-cols-12 gap-4 h-full">
+            
+            {/* Left Content Area - spans 9 columns */}
+            <div className="col-span-9 flex flex-col h-full">
+              
+              {/* Top Row - Stats Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-4 flex-shrink-0">
+                <NormalCard
+                  icon={icon1}
+                  title="EVENTS"
+                  counter={dashboardData.overview.totalEvents}
+                  text="Events"
+                  color="#1968AF"
+                  loading={loading}
+                  growth={period === 'month' ? 12.5 : null}
+                />
+                <NormalCard
+                  icon={icon2}
+                  title="BOOKINGS"
+                  counter={dashboardData.overview.totalBookings}
+                  text="Bookings"
+                  color="#F29D38"
+                  loading={loading}
+                  growth={period === 'month' ? 8.3 : null}
+                />
+                <NormalCard
+                  icon={icon3}
+                  title="REVENUE"
+                  counter={dashboardData.overview.totalRevenue}
+                  text="LKR"
+                  color="#197920"
+                  loading={loading}
+                  growth={dashboardData.revenueData.summary.growthPercentage}
+                />
+              </div>
+
+              {/* Middle Row - Charts */}
+              <div className="grid grid-cols-5 gap-4 h-90 flex-shrink-0">
+                {/* Net Sales Chart - spans 3 columns */}
+                <div className="col-span-3 h-full">
+                  <NetSalesChart 
+                    data={dashboardData.revenueData.dailyRevenue}
+                    loading={loading}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                  />
+                </div>
+                
+                {/* Customer Engagement Chart - spans 2 columns */}
+                <div className="col-span-2 h-full">
+                  <CustomerEngagementChart 
+                    data={dashboardData.customerEngagement}
+                    loading={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Row - Latest Event Heat Map */}
+              <div className="flex-1 min-h-0" style={{width: '100%'}}>
+                <LatestEventHeatMap 
+                  events={dashboardData.upcomingEvents}
+                  loading={loading}
+                />
+              </div>
+              
+            </div>
+
+            {/* Right Sidebar - spans 3 columns */}
+            <div className="col-span-3 h-full flex flex-col">
+              <div className="flex-1 mb-4">
+                <UpComing 
+                  events={dashboardData.upcomingEvents}
+                  loading={loading}
+                />
+              </div>
+              <div className="flex-1">
+                <Notifications 
+                  notifications={notifications}
+                  loading={notificationsLoading}
+                />
+              </div>
+            </div>
+            
           </div>
         </div>
         

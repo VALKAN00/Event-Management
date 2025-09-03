@@ -26,6 +26,24 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
+
+    // Listen for storage changes (for cross-tab sync)
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' || e.key === 'token') {
+        if (isAuthenticated()) {
+          const currentUser = getCurrentUser();
+          setUser(currentUser);
+        } else {
+          setUser(null);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const login = (userData) => {
@@ -43,11 +61,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
+  const refreshUser = () => {
+    if (isAuthenticated()) {
+      const currentUser = getCurrentUser();
+      setUser(currentUser);
+    }
+  };
+
   const value = {
     user,
     login,
     logout,
     updateUser,
+    refreshUser,
     isAuthenticated: !!user,
     loading
   };

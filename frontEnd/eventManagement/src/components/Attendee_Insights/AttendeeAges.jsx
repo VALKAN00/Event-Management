@@ -3,14 +3,20 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const AttendeeAgesChart = ({ data = [] }) => {
   // Transform backend data to chart format with colors
-  const chartData = data.length > 0 ? data.map((item, index) => ({
-    name: item.interest || item.category || `Interest ${index + 1}`,
-    value: item.count || item.value || 0,
-    percentage: item.percentage || 0,
-    color: [
-      '#8b5cf6', '#3b82f6', '#f59e0b', '#10b981', '#ef4444'
-    ][index % 5]
-  })) : [
+  const chartData = data.length > 0 ? data.map((item, index) => {
+    const total = data.reduce((sum, d) => sum + (d.count || d.value || 0), 0);
+    const value = item.count || item.value || 0;
+    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+    
+    return {
+      name: item.interest || item.category || `Interest ${index + 1}`,
+      value: value,
+      percentage: percentage,
+      color: [
+        '#8b5cf6', '#3b82f6', '#f59e0b', '#10b981', '#ef4444'
+      ][index % 5]
+    };
+  }) : [
     // Fallback data when loading or no data
     { name: 'Music', value: 450, percentage: 36, color: '#8b5cf6' },
     { name: 'Technology', value: 325, percentage: 26, color: '#3b82f6' },

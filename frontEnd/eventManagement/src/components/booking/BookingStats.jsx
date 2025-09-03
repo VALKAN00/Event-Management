@@ -1,6 +1,8 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const BookingStats = ({ stats, loading }) => {
+  const { user } = useAuth();
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -36,7 +38,7 @@ const BookingStats = ({ stats, loading }) => {
       bgColor: 'bg-green-50'
     },
     {
-      title: 'Total Revenue',
+      title: user?.role === 'user' ? 'Total Spend' : 'Total Revenue',
       value: `LKR ${Number.isFinite(stats?.totalRevenue) ? stats.totalRevenue.toLocaleString() : '0'}`,
       icon: (
         <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

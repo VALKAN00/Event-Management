@@ -90,13 +90,20 @@ const RecentActivity = ({ data, loading }) => {
   // Combine and sort all activities
   const allActivities = [...activities, ...upcomingEventActivities]
     .sort((a, b) => new Date(b.time) - new Date(a.time))
-    .slice(0, 8);
+    .slice(0, 4); // Show only 4 activities
+
+  const handleViewAll = () => {
+    window.location.href = '/all-activities';
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-        <button className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+        <button 
+          onClick={handleViewAll}
+          className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        >
           View All
         </button>
       </div>
@@ -151,18 +158,6 @@ const RecentActivity = ({ data, loading }) => {
           <p>No recent activity</p>
         </div>
       )}
-
-      {/* Quick Actions */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="grid grid-cols-2 gap-3">
-          <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-            Create Event
-          </button>
-          <button className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-            View Reports
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

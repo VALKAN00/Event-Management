@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import eventsAPI from "../api/eventsAPI";
 import { useAuth } from "../context/AuthContext";
+import Header from "../global/Header";
 
 export default function ManageEvents() {
   const navigate = useNavigate();
@@ -14,6 +15,17 @@ export default function ManageEvents() {
   const [sortBy, setSortBy] = useState("date");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
+
+  // Debug logging
+  console.log('ManageEvents component - User:', user, 'AuthLoading:', authLoading);
+  
+  // Add component mount/unmount logging
+  useEffect(() => {
+    console.log('ManageEvents component mounted with user:', user?.role, user?.id);
+    return () => {
+      console.log('ManageEvents component unmounted');
+    };
+  }, [user?.role, user?.id]); // Track user changes
   
   // Category icon mapping
   const categoryIcons = {
@@ -34,11 +46,13 @@ export default function ManageEvents() {
         setError(null);
         
         const params = {};
-        // Only add organizer filter if user is available
-        if (user?.id) {
+        // For admins, filter by organizer. For users, show all events
+        if (user?.role === 'admin' && user?.id) {
           params.organizer = user.id;
         }
+        // For regular users, we don't filter by organizer - they should see all events
         
+        console.log('Fetching events with params:', params, 'User role:', user?.role);
         const response = await eventsAPI.getEvents(params);
         console.log('API Response:', response); // Debug log
         
@@ -67,11 +81,14 @@ export default function ManageEvents() {
       }
     };
 
-    // Only fetch if not in auth loading state
-    if (!authLoading) {
+    // Only fetch if not in auth loading state and user is available
+    if (!authLoading && user) {
       fetchEvents();
+    } else if (!authLoading) {
+      // If no user and not loading, still set loading to false
+      setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user?.id, user?.role, authLoading, user]); // Include user for proper dependency tracking
 
   // Refresh events function for error retry
   const refreshEvents = async () => {
@@ -80,9 +97,11 @@ export default function ManageEvents() {
       setError(null);
       
       const params = {};
-      if (user?.id) {
+      // For admins, filter by organizer. For users, show all events
+      if (user?.role === 'admin' && user?.id) {
         params.organizer = user.id;
       }
+      // For regular users, we don't filter by organizer - they should see all events
       
       const response = await eventsAPI.getEvents(params);
       console.log('Refresh API Response:', response); // Debug log
@@ -261,158 +280,165 @@ export default function ManageEvents() {
   const filteredEvents = getFilteredAndSortedEvents();
 
   return (
-    <div className="min-h-screen mb-4">
-      {/* Header Section */}
-      <div className="p-4 mb-6 bg-white">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Event Management Section
-            {user?.name && <span className="text-lg font-normal text-gray-600 ml-2">- Welcome, {user.name}!</span>}
-          </h1>
+    <div key={`manage-events-${user?.role}-${user?.id}`} className="min-h-screen mb-4">
+      {/* Conditional Header - Global Header for Users, Custom Header for Admins */}
+      {user?.role === 'user' ? (
+        <div className="m-3">
+          <Header />
+        </div>
+      ) : (
+        <div className="p-3 sm:p-4 mb-4 sm:mb-6 bg-white">
+          {/* Main Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 sm:gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Event Management Section
+              {user?.name && <span className="block sm:inline text-sm sm:text-lg font-normal text-gray-600 sm:ml-2">- Welcome, {user.name}!</span>}
+            </h1>
 
-          {/* Right side controls */}
-          <div className="flex items-center gap-4">
-            {/* Filter Button */}
-            <button 
-              onClick={handleFilterToggle}
-              className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-gray-600"
+            {/* Right side controls - Mobile: Stack, Desktop: Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+              {/* Filter Button */}
+              <button 
+                onClick={handleFilterToggle}
+                className="cursor-pointer flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors text-sm sm:text-base"
               >
-                <path
-                  d="M3 6H21L18 12V18L15 21V12L3 6Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="text-gray-700 font-medium">
-                Filter: {filterStatus === "all" ? "All Events" : filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
-              </span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-gray-400"
-              >
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-gray-600 flex-shrink-0"
+                >
+                  <path
+                    d="M3 6H21L18 12V18L15 21V12L3 6Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="text-gray-700 font-medium truncate">
+                  Filter: {filterStatus === "all" ? "All Events" : filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
+                </span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-gray-400 flex-shrink-0"
+                >
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-            {/* Search Bar */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10 pr-4 py-2 w-64 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="cursor-pointer absolute left-3 top-3 text-gray-400"
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="pl-10 pr-4 py-2 w-full sm:w-64 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="cursor-pointer absolute left-3 top-3 text-gray-400"
+                >
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M21 21L16.65 16.65"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons and Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* New Event Button */}
+              <button
+                onClick={handleCreateEvent}
+                className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2 text-white border-2 border-blue-600 hover:bg-blue-100 transition-colors"
+                style={{ borderRadius: "15px", height: "46px" }}
               >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="8"
-                  stroke="currentColor"
-                  strokeWidth="2"
+                <img src="/assets/ManageEvent/Plus.svg" alt="Add" className="flex-shrink-0" />
+                <span className="font-medium text-[#0122F5]">New Event</span>
+              </button>
+
+              {/* Attendee Insights Button */}
+              <button
+                onClick={() => navigate('/attendee-insights')}
+                className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
+                style={{ borderRadius: "15px", height: "46px" }}
+              >
+                <span className="font-medium">Attendee Insights</span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-orange-400 flex-shrink-0"
+                >
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              {/* Sort By */}
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-medium text-sm sm:text-base whitespace-nowrap">Sort By:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className="cursor-pointer flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors text-sm sm:text-base flex-1 sm:flex-initial"
+                >
+                  <option value="date">Date</option>
+                  <option value="status">Status</option>
+                  <option value="name">Name</option>
+                  <option value="price">Price</option>
+                </select>
+              </div>
+
+              {/* Pick Date */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDatePick}
+                  className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors text-sm sm:text-base w-full sm:w-auto"
                 />
-                <path
-                  d="M21 21L16.65 16.65"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Action Buttons and Controls */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* New Event Button */}
-            <button
-              onClick={handleCreateEvent}
-              className="cursor-pointer flex items-center gap-2 px-4 py-2  text-white border-2 border-blue-600  hover:bg-blue-100 transition-colors"
-              style={{ borderRadius: "15px", height: "46px" }}
-            >
-              <img src="/assets/ManageEvent/Plus.svg" alt="Add" />
-              <span className="font-medium text-[#0122F5]">New Event</span>
-            </button>
-
-            {/* Attendee Insights Button */}
-            <button
-              onClick={() => navigate('/attendee-insights')}
-              className="cursor-pointer flex items-center gap-2 px-4 py-2 border-2 border-orange-400 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
-              style={{ borderRadius: "15px", height: "46px" }}
-            >
-              <span className="font-medium">Attendee Insights</span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-orange-400"
-              >
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Sort By */}
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 font-medium">Sort By:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => handleSortChange(e.target.value)}
-                className="cursor-pointer flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
-              >
-                <option value="date">Date</option>
-                <option value="status">Status</option>
-                <option value="name">Name</option>
-                <option value="price">Price</option>
-              </select>
-            </div>
-
-            {/* Pick Date */}
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={handleDatePick}
-                className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Loading State */}
       {loading && (
@@ -491,9 +517,11 @@ export default function ManageEvents() {
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm || selectedDate || filterStatus !== "all" 
                     ? "Try adjusting your search or filters" 
-                    : "Get started by creating your first event"}
+                    : user?.role === 'admin' 
+                      ? "Get started by creating your first event"
+                      : "No events available at the moment"}
                 </p>
-                {(!searchTerm && !selectedDate && filterStatus === "all") && (
+                {(!searchTerm && !selectedDate && filterStatus === "all" && user?.role === 'admin') && (
                   <div className="mt-6">
                     <button
                       onClick={handleCreateEvent}

@@ -210,23 +210,23 @@ const CreateBookingForm = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Booking</h2>
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Create New Booking</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Event Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -237,7 +237,7 @@ const CreateBookingForm = ({
               onChange={(e) => handleInputChange('eventId', e.target.value)}
               required
               disabled={eventsLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+              className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
             >
               <option value="">
                 {eventsLoading ? "Loading events..." : "Choose an event..."}
@@ -252,8 +252,8 @@ const CreateBookingForm = ({
 
           {/* Attendee Information */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Attendee Information</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Attendee Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
@@ -263,7 +263,7 @@ const CreateBookingForm = ({
                   value={formData.attendeeInfo.name}
                   onChange={(e) => handleInputChange('attendeeInfo.name', e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
@@ -275,7 +275,7 @@ const CreateBookingForm = ({
                   value={formData.attendeeInfo.email}
                   onChange={(e) => handleInputChange('attendeeInfo.email', e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
@@ -287,7 +287,7 @@ const CreateBookingForm = ({
                   value={formData.attendeeInfo.phone}
                   onChange={(e) => handleInputChange('attendeeInfo.phone', e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
@@ -298,21 +298,21 @@ const CreateBookingForm = ({
                   value={formData.attendeeInfo.gender}
                   onChange={(e) => handleInputChange('attendeeInfo.gender', e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Gender</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                 </select>
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Payment Method *
                 </label>
                 <select
                   value={formData.paymentMethod}
                   onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="card">Credit/Debit Card</option>
                   <option value="mobile">Mobile Payment</option>
@@ -321,7 +321,7 @@ const CreateBookingForm = ({
                 </select>
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Special Requirements
               </label>
@@ -329,7 +329,7 @@ const CreateBookingForm = ({
                 value={formData.attendeeInfo.specialRequirements}
                 onChange={(e) => handleInputChange('attendeeInfo.specialRequirements', e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Any special requirements or notes..."
               />
             </div>
@@ -337,11 +337,11 @@ const CreateBookingForm = ({
 
           {/* Automatic Seat Filling */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Seat Selection Options</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Seat Selection Options</h3>
             
             {/* Auto-fill toggle */}
-            <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center justify-between mb-3">
+            <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -357,8 +357,8 @@ const CreateBookingForm = ({
               
               {formData.autoFill && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="flex-1 w-full">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Number of Seats
                       </label>
@@ -368,15 +368,15 @@ const CreateBookingForm = ({
                         max="10"
                         value={formData.numberOfSeats}
                         onChange={(e) => handleNumberOfSeatsChange(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 w-full sm:w-auto">
                       <button
                         type="button"
                         onClick={autoFillSeats}
                         disabled={!formData.eventId || isAutoFilling}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                        className="w-full sm:w-auto px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                       >
                         {isAutoFilling && (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -396,8 +396,8 @@ const CreateBookingForm = ({
 
           {/* Seats */}
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900">
                 {formData.autoFill ? 'Assigned Seats' : 'Manual Seat Selection'}
               </h3>
               {!formData.autoFill && (
@@ -412,11 +412,11 @@ const CreateBookingForm = ({
             </div>
             
             {formData.seats.map((seat, index) => (
-              <div key={index} className={`grid gap-4 mb-4 p-4 rounded-md ${formData.autoFill ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
+              <div key={index} className={`grid gap-3 sm:gap-4 mb-3 sm:mb-4 p-3 sm:p-4 rounded-md ${formData.autoFill ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
                 
                 {formData.autoFill ? (
                   // Auto-filled seat display (read-only)
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Seat Number
@@ -452,7 +452,7 @@ const CreateBookingForm = ({
                   </div>
                 ) : (
                   // Manual seat input
-                  <div className="grid grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Seat Number *
@@ -501,7 +501,7 @@ const CreateBookingForm = ({
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
-                    <div className="flex items-end">
+                    <div className="flex items-end sm:col-span-2 lg:col-span-1">
                       {formData.seats.length > 1 && (
                         <button
                           type="button"
@@ -520,37 +520,44 @@ const CreateBookingForm = ({
 
           {/* Seat Heat Map */}
           {formData.eventId && (
-            <div className="mt-6">
-              <SeatHeatMap 
-                selectedEvent={events.find(event => event._id === formData.eventId)}
-                assignedSeats={formData.seats}
-              />
+            <div className="mt-4 sm:mt-6">
+              <div className="hidden sm:block">
+                <SeatHeatMap 
+                  selectedEvent={events.find(event => event._id === formData.eventId)}
+                  assignedSeats={formData.seats}
+                />
+              </div>
+              <div className="sm:hidden bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <p className="text-sm text-blue-800 text-center">
+                  Seat heat map is available on larger screens
+                </p>
+              </div>
             </div>
           )}
 
           {/* Total */}
-          <div className="bg-gray-50 rounded-md p-4">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-medium text-gray-900">Total Amount:</span>
-              <span className="text-xl font-bold text-blue-600">
+          <div className="bg-gray-50 rounded-md p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+              <span className="text-base sm:text-lg font-medium text-gray-900">Total Amount:</span>
+              <span className="text-lg sm:text-xl font-bold text-blue-600">
                 LKR {calculateTotal().toLocaleString()}
               </span>
             </div>
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-3 pt-3 sm:pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors order-2 sm:order-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors order-1 sm:order-2"
             >
               {isLoading ? 'Creating...' : 'Create Booking'}
             </button>

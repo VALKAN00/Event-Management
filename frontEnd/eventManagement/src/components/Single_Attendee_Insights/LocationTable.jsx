@@ -30,19 +30,19 @@ const LocationTable = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 h-full">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold text-gray-900">ATTENDEE LOCATIONS</h3>
+    <div className="bg-white rounded-lg p-3 sm:p-6 shadow-sm border border-gray-100 h-full">
+      <div className="mb-3 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900">ATTENDEE LOCATIONS</h3>
       </div>
 
       {/* Table with clean borders */}
       <div className="border-2 border-gray-800 rounded-lg overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-2 bg-gray-50">
-          <div className="text-sm font-semibold text-gray-700 p-3 border-r-2 border-gray-800">
+          <div className="text-xs sm:text-sm font-semibold text-gray-700 p-2 sm:p-3 border-r-2 border-gray-800">
             Location
           </div>
-          <div className="text-sm font-semibold text-gray-700 p-3">Count</div>
+          <div className="text-xs sm:text-sm font-semibold text-gray-700 p-2 sm:p-3">Count</div>
         </div>
 
         {/* Table Rows */}
@@ -55,10 +55,10 @@ const LocationTable = () => {
                 : ""
             }`}
           >
-            <div className="flex items-center gap-3 p-3 border-r-2 border-gray-800 bg-white">
-              <span className="text-sm text-gray-700">{item.location}</span>
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 border-r-2 border-gray-800 bg-white">
+              <span className="text-xs sm:text-sm text-gray-700 truncate">{item.location}</span>
             </div>
-            <div className="text-sm font-semibold text-gray-900 p-3 bg-white flex items-center justify-between">
+            <div className="text-xs sm:text-sm font-semibold text-gray-900 p-2 sm:p-3 bg-white flex items-center justify-between">
               {item.count}
               <div
                 className="w-3 h-3 rounded-full flex-shrink-0"

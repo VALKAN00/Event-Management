@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventDetails.jsx Mobile Responsiveness Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom responsive test styles */
+        .responsive-preview {
+            border: 2px solid #e5e7eb;
+            margin: 20px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .viewport-label {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-4">
+        <h1 class="text-2xl font-bold mb-6">EventDetails.jsx Mobile Responsiveness Test</h1>
+        
+        <!-- Mobile Preview (375px) -->
+        <div class="responsive-preview">
+            <div class="viewport-label">Mobile (375px)</div>
+            <div class="max-w-sm border rounded-lg bg-white overflow-hidden">
+                <iframe 
+                    src="about:blank" 
+                    style="width: 375px; height: 600px; border: none; transform: scale(0.8); transform-origin: top left;"
+                    title="Mobile Preview">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Key Responsive Features Implemented -->
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">✅ Mobile Responsiveness Features Implemented</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Layout Structure</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Main container: flex-col lg:flex-row</li>
+                        <li>• Form rows: flex-col sm:flex-row</li>
+                        <li>• Statistics: grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4</li>
+                        <li>• Bottom section: flex-col lg:flex-row</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Interactive Elements</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Touch-friendly button sizing</li>
+                        <li>• Full-width buttons on mobile</li>
+                        <li>• Responsive form inputs</li>
+                        <li>• Optimized icon sizing</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Seat Allocation</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Smaller seat icons on mobile (w-4 h-4)</li>
+                        <li>• Horizontal scroll for seat map</li>
+                        <li>• Responsive legend layout</li>
+                        <li>• Flexible container sizing</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Right Panel</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• QR code responsive sizing</li>
+                        <li>• Tags/Attendance stacked layout</li>
+                        <li>• Action buttons full-width on mobile</li>
+                        <li>• Centered QR code display</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breakpoint Guide -->
+        <div class="bg-blue-50 rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-blue-800">📱 Responsive Breakpoints</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded border">
+                    <div class="font-semibold text-gray-800">Mobile</div>
+                    <div class="text-sm text-gray-600">0px - 639px</div>
+                    <div class="text-xs text-gray-500 mt-1">Single column layout, stacked elements</div>
+                </div>
+                <div class="bg-white p-4 rounded border">
+                    <div class="font-semibold text-gray-800">Small (sm:)</div>
+                    <div class="text-sm text-gray-600">640px+</div>
+                    <div class="text-xs text-gray-500 mt-1">Two-column forms, flex buttons</div>
+                </div>
+                <div class="bg-white p-4 rounded border">
+                    <div class="font-semibold text-gray-800">Medium (md:)</div>
+                    <div class="text-sm text-gray-600">768px+</div>
+                    <div class="text-xs text-gray-500 mt-1">Enhanced grid layouts</div>
+                </div>
+                <div class="bg-white p-4 rounded border">
+                    <div class="font-semibold text-gray-800">Large (lg:)</div>
+                    <div class="text-sm text-gray-600">1024px+</div>
+                    <div class="text-xs text-gray-500 mt-1">Full desktop layout</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Instructions -->
+        <div class="bg-amber-50 rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-amber-800">🧪 Testing Instructions</h2>
+            <ol class="text-sm text-gray-700 space-y-2">
+                <li><strong>1. Browser DevTools:</strong> Open Chrome DevTools (F12) and toggle device toolbar</li>
+                <li><strong>2. Test Devices:</strong> Try iPhone SE (375px), iPad (768px), and Desktop (1024px+)</li>
+                <li><strong>3. Orientation:</strong> Test both portrait and landscape modes</li>
+                <li><strong>4. Form Interaction:</strong> Test edit mode and button interactions</li>
+                <li><strong>5. Seat Map:</strong> Verify seat allocation scales properly</li>
+                <li><strong>6. QR Code:</strong> Check QR code displays correctly on all sizes</li>
+            </ol>
+        </div>
+
+        <!-- Implementation Summary -->
+        <div class="bg-green-50 rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-green-800">📋 Implementation Summary</h2>
+            <div class="text-sm text-gray-700">
+                <p class="mb-2">
+                    <strong>EventDetails.jsx</strong> has been successfully made responsive for mobile devices with the following improvements:
+                </p>
+                <ul class="space-y-1 ml-4">
+                    <li>• Mobile-first responsive design using Tailwind CSS breakpoints</li>
+                    <li>• Flexible form layouts that stack on mobile and arrange side-by-side on larger screens</li>
+                    <li>• Responsive statistics grid that adapts from 1 column on mobile to 4 columns on desktop</li>
+                    <li>• Touch-friendly button sizing and full-width mobile buttons</li>
+                    <li>• Optimized seat allocation map with smaller seats on mobile and horizontal scrolling</li>
+                    <li>• Responsive QR code sizing and centered display</li>
+                    <li>• Proper padding and spacing adjustments for mobile screens</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

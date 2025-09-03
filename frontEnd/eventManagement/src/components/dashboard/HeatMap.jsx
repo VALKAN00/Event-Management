@@ -43,7 +43,7 @@ const LatestEventHeatMap = ({ events = [], loading = false }) => {
   const Seat = ({ status, index }) => (
     <div
       key={index}
-      className="w-9 h-9 rounded-md mx-1 my-1"
+      className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 rounded-md mx-0.5 my-0.5 sm:mx-1 sm:my-1"
       style={{
         backgroundColor: getSeatColor(status),
         transition: 'all 0.2s ease'
@@ -52,40 +52,40 @@ const LatestEventHeatMap = ({ events = [], loading = false }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 w-full max-w-5xl mx-auto" style={{height: '314px'}}>
+    <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 w-full h-full min-h-[280px] sm:min-h-[314px]">
       {/* Header */}
-      <h2 className="text-lg font-bold text-gray-800 mb-4">Latest Event</h2>
+      <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Latest Event</h2>
       
       {loading ? (
         <div className="flex items-center justify-center h-48">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           {/* Event Information */}
-          <div className="flex-shrink-0 w-full md:w-64">
-            <div className="mb-4">
+          <div className="flex-shrink-0 w-full lg:w-64">
+            <div className="mb-3 sm:mb-4">
               <h3 className="text-xs font-medium text-gray-600 mb-1">Event Name:</h3>
-              <p className="text-sm font-semibold text-gray-900">{eventName}</p>
+              <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{eventName}</p>
             </div>
             
-            <div className="mb-4">
+            <div className="mb-3 sm:mb-4">
               <h3 className="text-xs font-medium text-gray-600 mb-1">Event Date:</h3>
-              <p className="text-sm font-semibold text-gray-900">{formatDate(eventDate)}</p>
+              <p className="text-xs sm:text-sm font-semibold text-gray-900">{formatDate(eventDate)}</p>
             </div>
 
             {/* Legend */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#7C3AED' }}></div>
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: '#7C3AED' }}></div>
                 <span className="text-xs font-medium text-gray-700">Paid Seats</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#A78BFA' }}></div>
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: '#A78BFA' }}></div>
                 <span className="text-xs font-medium text-gray-700">Reserved Seats</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#D1D5DB' }}></div>
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: '#D1D5DB' }}></div>
                 <span className="text-xs font-medium text-gray-700">To be sold</span>
               </div>
             </div>
@@ -93,9 +93,9 @@ const LatestEventHeatMap = ({ events = [], loading = false }) => {
 
           {/* Seating Chart */}
           <div className="flex-1 min-w-0">
-            <div className="rounded-lg p-4 overflow-hidden">
+            <div className="rounded-lg p-2 sm:p-3 lg:p-4 overflow-hidden">
               {seatData.map((row, rowIndex) => (
-                <div key={rowIndex} className="flex justify-center items-center mb-2">
+                <div key={rowIndex} className="flex justify-center items-center mb-1 sm:mb-2">
                   {row.map((seatStatus, seatIndex) => (
                     <Seat 
                       key={`${rowIndex}-${seatIndex}`} 
