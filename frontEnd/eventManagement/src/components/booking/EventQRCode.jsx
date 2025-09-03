@@ -10,7 +10,7 @@ const EventQRCode = ({ event, size = 120 }) => {
   const bookingUrl = `${window.location.origin}/booking-tickets?event=${event._id}`;
   
   return (
-    <div className="flex  items-center justify-start gap-5 p-4">
+    <div className="flex items-start justify-start gap-5 p-4">
       <div className="bg-white p-3 rounded-lg shadow-sm border">
         <QRCode
           size={size}

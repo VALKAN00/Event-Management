@@ -491,13 +491,6 @@ export default function Sidebar() {
                     )}
                 </div>
             </div>
-            
-            {/* Quick Event Modal */}
-            <QuickEventModal
-                isOpen={showQuickEventModal}
-                onClose={() => setShowQuickEventModal(false)}
-                onSuccess={handleQuickEventSuccess}
-            />
 
             {/* Toast Notification */}
             {toast && (
@@ -508,6 +501,13 @@ export default function Sidebar() {
                 />
             )}
         </div>
+        
+        {/* Quick Event Modal - Rendered outside sidebar for full-screen overlay */}
+        <QuickEventModal
+            isOpen={showQuickEventModal}
+            onClose={() => setShowQuickEventModal(false)}
+            onSuccess={handleQuickEventSuccess}
+        />
         </>
     );
 }

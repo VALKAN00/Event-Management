@@ -733,7 +733,7 @@ export default function EventDetails() {
                 </div>
 
                 {/* QR Code Section */}
-                <div className="bg-gray-50 rounded-lg flex justify-center" style={{ border: "1px solid #ADADAD" }}>
+                <div className="bg-gray-50 rounded-lg flex justify-start items-center" style={{ border: "1px solid #ADADAD" }}>
                   <EventQRCode event={event} size={window.innerWidth < 640 ? 80 : 120} />
                 </div>
                 
