@@ -35,7 +35,8 @@ const io = new Server(server, {
       'http://localhost:5176',
       'http://localhost:5177',
       'http://localhost:5178',
-      process.env.FRONTEND_URL
+      process.env.FRONTEND_URL,
+      'https://sage-torrone-27fa1c.netlify.app' // Your Netlify domain
     ].filter(Boolean),
     credentials: true
   }
@@ -56,17 +57,20 @@ app.use(helmet());
 // app.use(limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173', 
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+  'http://localhost:5177',
+  'http://localhost:5178',
+  process.env.FRONTEND_URL,
+  'https://sage-torrone-27fa1c.netlify.app' // Your Netlify domain
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173', 
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176',
-    'http://localhost:5177',
-    'http://localhost:5178',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
+  origin: allowedOrigins,
   credentials: true
 }));
 
