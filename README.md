@@ -324,12 +324,3 @@ VITE_API_URL=https://your-render-app.onrender.com/api
 
 </div>
 
----
-
-<div align="center">
-
-### 🌟 Star this repository if you found it helpful!
-
-[![Star History Chart](https://api.star-history.com/svg?repos=VALKAN00/Event-Management&type=Date)](https://star-history.com/#VALKAN00/Event-Management&Date)
-
-</div>
