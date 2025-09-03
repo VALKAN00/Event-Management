@@ -35,8 +35,7 @@ EventX Studio is a modern, full-featured event management platform that streamli
 🌟 **[Try EventX Studio Live](https://sage-torrone-27fa1c.netlify.app)**
 
 ### Demo Accounts
-- **Admin Access**: `admin@eventx.com` / `admin123`
-- **User Access**: `user@eventx.com` / `user123`
+- use demo accounts button in the login
 
 ---
 
