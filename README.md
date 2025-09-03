@@ -2,15 +2,11 @@
 
 <div align="center">
 
-![EventX Studio Logo](https://img.shields.io/badge/EventX-Studio-blue?style=for-the-badge&logo=react)
-
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://sage-torrone-27fa1c.netlify.app)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-[![Build Status](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge)](https://github.com/VALKAN00/Event-Management)
 
 **A comprehensive, full-stack event management system built with React and Node.js**
 
-[Live Demo](https://sage-torrone-27fa1c.netlify.app) • [API Documentation](API_DOCUMENTATION.md) • [User Manual](USER_MANUAL.md) • [Report Issue](https://github.com/VALKAN00/Event-Management/issues)
+[Live Demo](https://sage-torrone-27fa1c.netlify.app) • [API Documentation](API_DOCUMENTATION.md) • [User Manual](USER_MANUAL.md) •
 
 </div>
 
