@@ -137,7 +137,6 @@ const mockData = {
 // Hybrid fetch function - tries real API first, falls back to mock
 const hybridFetch = async (endpoint, mockKey) => {
   try {
-    console.log(`Attempting to fetch from real API: ${endpoint}`);
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: getHeaders()
@@ -148,11 +147,8 @@ const hybridFetch = async (endpoint, mockKey) => {
     }
 
     const data = await response.json();
-    console.log(`✅ Real API success for ${endpoint}`);
     return data;
-  } catch (error) {
-    console.warn(`⚠️  Real API failed for ${endpoint}:`, error.message);
-    console.log(`🔄 Falling back to mock data for ${mockKey}`);
+  } catch {
     return mockData[mockKey];
   }
 };
@@ -245,11 +241,8 @@ export const analyticsAPI = {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      console.log(`✅ Real API export success for ${type}`);
       return { success: true, message: 'Export completed successfully' };
-    } catch (error) {
-      console.warn(`⚠️  Real API export failed for ${type}:`, error.message);
-      console.log(`🔄 Falling back to mock export`);
+    } catch {
       
       // Fallback to mock export with comprehensive data
       const generateComprehensiveCSV = (exportType) => {

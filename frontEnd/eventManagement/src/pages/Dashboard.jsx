@@ -69,23 +69,11 @@ export default function Dashboard() {
         bookingAPI.getMyBookings({ limit: 5, status: 'confirmed' })
       ]);
 
-      console.log('Dashboard stats:', dashboardStats);
-      console.log('Revenue analytics:', revenueAnalytics);
-      console.log('Customer engagement:', customerEngagement);
-      console.log('Upcoming events response:', upcomingEventsResponse);
-
       // Extract upcoming events from response
       const upcomingEventsData = upcomingEventsResponse?.data?.events || 
                                 upcomingEventsResponse?.events || 
                                 upcomingEventsResponse?.data || 
                                 [];
-
-      // Log status based on data received
-      if (upcomingEventsData && upcomingEventsData.length > 0) {
-        console.log('✅ Successfully loaded upcoming events from backend:', upcomingEventsData.length);
-      } else {
-        console.log('⚠️ No upcoming events from backend, using fallback data');
-      }
 
       setDashboardData({
         overview: dashboardStats.data?.overview || {
@@ -110,9 +98,7 @@ export default function Dashboard() {
       });
 
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
       setError(err.message || 'Failed to load dashboard data');
-      console.log('🔄 Using fallback upcoming events due to error');
       
       // Set fallback data with some mock upcoming events
       setDashboardData({
@@ -206,17 +192,14 @@ export default function Dashboard() {
 
     // Set up real-time event listeners for dashboard updates
     const handleAnalyticsUpdated = () => {
-      console.log('📊 Analytics data updated');
       fetchDashboardData();
     };
 
     const handleEventUpdated = () => {
-      console.log('🎪 Event data updated');
       fetchDashboardData();
     };
 
     const handleBookingUpdated = () => {
-      console.log('📅 Booking data updated');
       fetchDashboardData();
     };
 

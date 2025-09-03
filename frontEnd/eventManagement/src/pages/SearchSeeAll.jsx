@@ -31,14 +31,12 @@ const SearchSeeAll = () => {
             try {
                 setLoading(true);
                 const response = await eventsAPI.searchEvents(searchQuery);
-                console.log('Search API response:', response);
                 
                 // Handle the response structure - events might be in response.data.events or response.data
                 const eventsList = response.data?.events || response.data || [];
                 setEvents(eventsList);
                 setTotalEvents(eventsList.length);
-            } catch (error) {
-                console.error('Error fetching search results:', error);
+            } catch {
                 setEvents([]);
                 setTotalEvents(0);
             } finally {

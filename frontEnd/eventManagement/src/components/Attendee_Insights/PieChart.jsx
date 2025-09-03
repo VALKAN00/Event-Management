@@ -11,9 +11,6 @@ const AttendeeInterestsChart = ({ data = [] }) => {
     { name: '55+', value: 50, color: '#3b82f6' }
   ];
 
-  console.log('PieChart received data:', data);
-  console.log('PieChart chartData:', chartData);
-
   const CustomLegend = ({ payload }) => {
     return (
       <div className="grid grid-cols-2 gap-y-1 gap-x-3 mt-4">

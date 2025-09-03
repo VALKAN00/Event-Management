@@ -23,7 +23,6 @@ export default function SearchEventDetails() {
 
                 // Try to get event details from API
                 const response = await eventsAPI.getEventById(id);
-                console.log('Event details response:', response);
 
                 // Handle the response structure
                 let eventData = null;
@@ -41,7 +40,6 @@ export default function SearchEventDetails() {
                     throw new Error('Event not found');
                 }
             } catch (error) {
-                console.error('Error fetching event details:', error);
                 setError(error.message || 'Failed to load event details');
             } finally {
                 setLoading(false);

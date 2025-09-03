@@ -45,7 +45,6 @@ export default function ManageUsers() {
           await fetchUsers();
         }
       } catch (error) {
-        console.error('Error initializing data:', error);
         showMessage("error", "Failed to load user data. Please try again.");
       } finally {
         setLoading(false);

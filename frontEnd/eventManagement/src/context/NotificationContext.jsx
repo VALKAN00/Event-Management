@@ -29,7 +29,6 @@ export const NotificationProvider = ({ children }) => {
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to notification server');
         newSocket.emit('join', user.id);
       });
 
@@ -48,7 +47,6 @@ export const NotificationProvider = ({ children }) => {
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from notification server');
       });
 
       return () => {
@@ -68,8 +66,8 @@ export const NotificationProvider = ({ children }) => {
       setLoading(true);
       const response = await notificationsAPI.getNotifications();
       setNotifications(response.data || []);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+    } catch {
+      // Error fetching notifications - fail silently
     } finally {
       setLoading(false);
     }
@@ -81,8 +79,8 @@ export const NotificationProvider = ({ children }) => {
     try {
       const response = await notificationsAPI.getUnreadCount();
       setUnreadCount(response.count || 0);
-    } catch (error) {
-      console.error('Error fetching unread count:', error);
+    } catch {
+      // Error fetching unread count - fail silently
     }
   }, [user]);
 
@@ -112,8 +110,8 @@ export const NotificationProvider = ({ children }) => {
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+    } catch {
+      // Error marking notification as read - fail silently
     }
   }, [user]);
 
@@ -126,8 +124,8 @@ export const NotificationProvider = ({ children }) => {
         prev.map(notif => ({ ...notif, read: true }))
       );
       setUnreadCount(0);
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+    } catch {
+      // Error marking all notifications as read - fail silently
     }
   }, [user]);
 
@@ -142,8 +140,8 @@ export const NotificationProvider = ({ children }) => {
       if (deletedNotif && !deletedNotif.read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    } catch {
+      // Error deleting notification - fail silently
     }
   }, [notifications]);
 

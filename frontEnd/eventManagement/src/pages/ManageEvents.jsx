@@ -16,14 +16,9 @@ export default function ManageEvents() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
 
-  // Debug logging
-  console.log('ManageEvents component - User:', user, 'AuthLoading:', authLoading);
-  
   // Add component mount/unmount logging
   useEffect(() => {
-    console.log('ManageEvents component mounted with user:', user?.role, user?.id);
     return () => {
-      console.log('ManageEvents component unmounted');
     };
   }, [user?.role, user?.id]); // Track user changes
   
@@ -52,9 +47,7 @@ export default function ManageEvents() {
         }
         // For regular users, we don't filter by organizer - they should see all events
         
-        console.log('Fetching events with params:', params, 'User role:', user?.role);
         const response = await eventsAPI.getEvents(params);
-        console.log('API Response:', response); // Debug log
         
         // Handle the backend response structure: { success: true, data: { events: [], pagination: {} } }
         let eventsData = [];
@@ -71,10 +64,8 @@ export default function ManageEvents() {
           eventsData = response;
         }
         
-        console.log('Processed events data:', eventsData); // Debug log
         setEvents(eventsData);
       } catch (err) {
-        console.error("Error fetching events:", err);
         setError(err.message || "Failed to fetch events");
       } finally {
         setLoading(false);
@@ -104,7 +95,6 @@ export default function ManageEvents() {
       // For regular users, we don't filter by organizer - they should see all events
       
       const response = await eventsAPI.getEvents(params);
-      console.log('Refresh API Response:', response); // Debug log
       
       // Handle the backend response structure: { success: true, data: { events: [], pagination: {} } }
       let eventsData = [];
@@ -123,7 +113,6 @@ export default function ManageEvents() {
       
       setEvents(eventsData);
     } catch (err) {
-      console.error("Error fetching events:", err);
       setError(err.message || "Failed to fetch events");
     } finally {
       setLoading(false);
@@ -135,7 +124,6 @@ export default function ManageEvents() {
     try {
       // Validate that apiEvent exists and has required properties
       if (!apiEvent || typeof apiEvent !== 'object') {
-        console.warn('Invalid apiEvent:', apiEvent);
         return null;
       }
 
@@ -181,8 +169,7 @@ export default function ManageEvents() {
         status: status,
         originalData: apiEvent
       };
-    } catch (error) {
-      console.error('Error transforming event data:', error, apiEvent);
+    } catch {
       return null;
     }
   };
@@ -191,7 +178,6 @@ export default function ManageEvents() {
   const getFilteredAndSortedEvents = () => {
     // Ensure events is an array before processing
     if (!Array.isArray(events)) {
-      console.warn('Events is not an array:', events);
       return [];
     }
 
@@ -237,8 +223,7 @@ export default function ManageEvents() {
       });
 
       return filteredEvents;
-    } catch (error) {
-      console.error('Error in getFilteredAndSortedEvents:', error);
+    } catch {
       return [];
     }
   };

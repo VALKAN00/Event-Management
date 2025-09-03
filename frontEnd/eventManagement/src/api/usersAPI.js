@@ -39,8 +39,7 @@ export const usersAPI = {
       });
 
       return await handleResponse(response);
-    } catch (error) {
-      console.error('Error fetching users:', error);
+    } catch {
       
       // Return fallback data structure
       return {
@@ -67,127 +66,92 @@ export const usersAPI = {
 
   // Get user by ID
   getUser: async (userId) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-      });
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Create user (Admin only)
   createUser: async (userData) => {
-    try {
-      // First register the user through auth endpoint
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          password: userData.password || 'TempPassword123!', // Temporary password
-          role: userData.role || 'user'
-        })
-      });
+    // First register the user through auth endpoint
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password || 'TempPassword123!', // Temporary password
+        role: userData.role || 'user'
+      })
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Update current user's profile
   updateProfile: async (profileData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/profile`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(profileData)
-      });
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(profileData)
+    });
 
-      const data = await handleResponse(response);
-      
-      // Update the stored user data in localStorage
-      if (data.success && data.data) {
-        localStorage.setItem('user', JSON.stringify(data.data));
-      }
-      
-      return data;
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
+    const data = await handleResponse(response);
+    
+    // Update the stored user data in localStorage
+    if (data.success && data.data) {
+      localStorage.setItem('user', JSON.stringify(data.data));
     }
+    
+    return data;
   },
 
   // Update user
   updateUser: async (userId, userData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(userData)
-      });
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(userData)
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Delete user (Admin only)
   deleteUser: async (userId) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Update user role (Admin only)
   updateUserRole: async (userId, role) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ role })
-      });
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ role })
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Toggle user status (activate/deactivate)
   toggleUserStatus: async (userId, isActive) => {
-    try {
-      const endpoint = isActive ? 'activate' : 'deactivate';
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/${endpoint}`, {
-        method: 'PATCH',
-        headers: getAuthHeaders()
-      });
+    const endpoint = isActive ? 'activate' : 'deactivate';
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/${endpoint}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders()
+    });
 
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Error toggling user status:', error);
-      throw error;
-    }
+    return await handleResponse(response);
   },
 
   // Get user statistics
@@ -200,8 +164,7 @@ export const usersAPI = {
 
       const data = await handleResponse(response);
       return data.data.stats;
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
+    } catch {
       
       // Return fallback stats
       return {

@@ -60,29 +60,17 @@ const eventsAPI = {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-        headers: headers
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('API Error Details:', {
-          status: response.status,
-          statusText: response.statusText,
-          message: data.message,
-          eventId: id,
-          url: `${API_BASE_URL}/events/${id}`
-        });
-        throw new Error(data.message || 'Failed to fetch event');
-      }
-      
-      return data;
-    } catch (error) {
-      console.error('Network or API error for event ID:', id, error);
-      throw error;
+    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+      headers: headers
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch event');
     }
+    
+    return data;
   },
 
   // Update event
@@ -167,39 +155,30 @@ const eventsAPI = {
 
   // Get upcoming events
   getUpcomingEvents: async (params = {}) => {
-    try {
-      const queryString = new URLSearchParams(params).toString();
-      const url = queryString ? `${API_BASE_URL}/events/upcoming?${queryString}` : `${API_BASE_URL}/events/upcoming`;
-      
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'application/json'
-      };
-      
-      // Add auth header if token exists
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-      
-      console.log('🔄 Fetching upcoming events from:', url);
-      
-      const response = await fetch(url, {
-        headers: headers
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('❌ Failed to fetch upcoming events:', data.message);
-        throw new Error(data.message || 'Failed to fetch upcoming events');
-      }
-      
-      console.log('✅ Successfully fetched upcoming events:', data);
-      return data;
-    } catch (error) {
-      console.error('❌ Error in getUpcomingEvents:', error);
-      throw error;
+    const queryString = new URLSearchParams(params).toString();
+    const url = queryString ? `${API_BASE_URL}/events/upcoming?${queryString}` : `${API_BASE_URL}/events/upcoming`;
+    
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Add auth header if token exists
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
+    
+    const response = await fetch(url, {
+      headers: headers
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch upcoming events');
+    }
+    
+    return data;
   },
 
   // Bookmark event

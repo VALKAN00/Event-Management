@@ -45,9 +45,7 @@ export default function Marketing() {
       ];
       
       setEvents(fakeEvents);
-      console.log('✅ Loaded 3 fake events for simulation:', fakeEvents);
-    } catch (error) {
-      console.error('Error fetching events:', error);
+    } catch {
       setEvents([]); // Set empty array on error
     }
   };
@@ -102,7 +100,6 @@ export default function Marketing() {
     setLoading(true);
     try {
       // Here you would typically send the data to your backend
-      console.log('Marketing campaign data:', formData);
       
       setMessage('Marketing campaign created successfully!');
       
@@ -114,9 +111,8 @@ export default function Marketing() {
         price: '',
         days: ''
       });
-    } catch (error) {
+    } catch {
       setMessage('Error creating marketing campaign');
-      console.error('Error:', error);
     } finally {
       setLoading(false);
     }

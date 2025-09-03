@@ -37,9 +37,6 @@ const AttendeeLocationChart = ({ data = [] }) => {
     { location: 'Cairo', value: 8, percentage: '22%', color: '#10b981' }
   ];
 
-  // Add debugging for mobile
-  console.log('BarChart - isMobile:', isMobile, 'data:', data, 'chartData:', chartData);
-
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;

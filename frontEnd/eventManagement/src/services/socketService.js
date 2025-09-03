@@ -21,17 +21,14 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('🔌 Connected to Socket.IO server:', this.socket.id);
       this.isConnected = true;
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('🔌 Disconnected from Socket.IO server:', reason);
+    this.socket.on('disconnect', () => {
       this.isConnected = false;
     });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('🔌 Socket.IO connection error:', error);
+    this.socket.on('connect_error', () => {
       this.isConnected = false;
     });
 
@@ -43,7 +40,6 @@ class SocketService {
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
-      console.log('🔌 Socket.IO disconnected manually');
     }
   }
 
@@ -51,7 +47,6 @@ class SocketService {
   joinRoom(room) {
     if (this.socket && this.isConnected) {
       this.socket.emit(`join-${room}`);
-      console.log(`📊 Joined ${room} room for real-time updates`);
     }
   }
 
@@ -59,7 +54,6 @@ class SocketService {
   onUserCreated(callback) {
     if (this.socket) {
       this.socket.on('userCreated', (data) => {
-        console.log('🔔 Received userCreated event:', data);
         callback(data);
       });
     }
@@ -68,7 +62,6 @@ class SocketService {
   onUserUpdated(callback) {
     if (this.socket) {
       this.socket.on('userUpdated', (data) => {
-        console.log('🔔 Received userUpdated event:', data);
         callback(data);
       });
     }
@@ -77,7 +70,6 @@ class SocketService {
   onUserDeleted(callback) {
     if (this.socket) {
       this.socket.on('userDeleted', (data) => {
-        console.log('🔔 Received userDeleted event:', data);
         callback(data);
       });
     }

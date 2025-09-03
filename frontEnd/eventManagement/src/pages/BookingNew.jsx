@@ -48,10 +48,7 @@ export default function Booking() {
         ...filterParams
       };
       
-      console.log('Fetching bookings with params:', params);
-      
       const response = await bookingAPI.getMyBookings(params);
-      console.log('Bookings response:', response);
       
       if (response.success) {
         setBookings(response.data.bookings || response.data || []);

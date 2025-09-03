@@ -170,18 +170,7 @@ export default function CreateEvent() {
         }
       };
 
-      console.log('Submitting event data:', eventData); // Debug log
-      console.log('User object:', user); // Debug log
-      console.log('Form data before submission:', formData); // Debug log
-      console.log('Event date validation:', {
-        formDataDate: formData.date,
-        eventDate: eventDate,
-        now: now,
-        isValid: eventDate > now
-      });
-
       const response = await eventsAPI.createEvent(eventData);
-      console.log('Create event response:', response); // Debug log
       
       // Check if event was created successfully
       if (response.success || response.data || response._id) {
@@ -196,7 +185,6 @@ export default function CreateEvent() {
         throw new Error('Event creation failed');
       }
     } catch (err) {
-      console.error('Error creating event:', err);
       
       // Handle specific API errors
       if (err.message && err.message.includes('Validation')) {

@@ -45,8 +45,7 @@ export default function Settings() {
               phone: response.data.profileDetails?.phone || "",
             });
           }
-        } catch (error) {
-          console.log('Could not fetch fresh user data:', error.message);
+        } catch {
           // Continue with cached data, no need to show error to user
         }
       }
@@ -119,7 +118,6 @@ export default function Settings() {
         showMessage("error", response.message || "Failed to update profile.");
       }
     } catch (error) {
-      console.error('Profile update error:', error);
       showMessage("error", error.message || "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
@@ -176,7 +174,6 @@ export default function Settings() {
         showMessage("error", response.message || "Failed to update password.");
       }
     } catch (error) {
-      console.error('Password update error:', error);
       showMessage("error", error.message || "Failed to update password.");
     } finally {
       setLoading(false);

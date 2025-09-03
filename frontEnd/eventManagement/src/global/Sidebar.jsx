@@ -28,7 +28,6 @@ export default function Sidebar() {
     useEffect(() => {
         // Reset sidebar sections when user changes or when switching between admin/user
         // This ensures clean state when switching accounts
-        console.log('User changed in sidebar:', user?.role);
         
         // Reset to default state when user role changes
         setOpenSections({
@@ -86,8 +85,7 @@ export default function Sidebar() {
             logout();
             // Navigate to login page
             navigate('/login');
-        } catch (error) {
-            console.error('Logout error:', error);
+        } catch {
             // Even if API call fails, use AuthContext logout and redirect
             logout();
             navigate('/login');
