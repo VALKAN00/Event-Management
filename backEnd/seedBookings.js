@@ -11,18 +11,18 @@ mongoose.connect('mongodb://127.0.0.1:27017/eventx_studio', {
 
 const seedBookings = async () => {
   try {
-    console.log('🎯 Starting booking seeding...');
+    console.log(' Starting booking seeding...');
 
     // Get all users and events
     const users = await User.find({ isActive: true });
     const events = await Event.find({ isActive: true });
 
     if (users.length === 0 || events.length === 0) {
-      console.log('❌ No users or events found. Please seed users and events first.');
+      console.log(' No users or events found. Please seed users and events first.');
       return;
     }
 
-    console.log(`📊 Found ${users.length} users and ${events.length} events`);
+    console.log(` Found ${users.length} users and ${events.length} events`);
 
     // Clear existing bookings (optional)
     await Booking.deleteMany({});
@@ -93,7 +93,7 @@ const seedBookings = async () => {
 
     // Insert all bookings
     const createdBookings = await Booking.insertMany(bookings);
-    console.log(`✅ Created ${createdBookings.length} sample bookings`);
+    console.log(` Created ${createdBookings.length} sample bookings`);
 
     // Update event analytics
     for (const event of events) {
@@ -125,11 +125,11 @@ const seedBookings = async () => {
       });
     }
 
-    console.log('🎉 Booking seeding completed!');
-    console.log(`📈 Analytics data populated for ${events.length} events`);
+    console.log(' Booking seeding completed!');
+    console.log(` Analytics data populated for ${events.length} events`);
     
   } catch (error) {
-    console.error('❌ Error seeding bookings:', error);
+    console.error(' Error seeding bookings:', error);
   } finally {
     mongoose.connection.close();
   }

@@ -83,8 +83,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch((error) => console.error('❌ MongoDB connection error:', error));
+.then(() => console.log(' MongoDB connected successfully'))
+.catch((error) => console.error(' MongoDB connection error:', error));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -117,38 +117,38 @@ io.on('connection', (socket) => {
   // Handle user joining their personal notification room
   socket.on('join', (userId) => {
     socket.join(userId);
-    console.log(`📫 User ${socket.id} joined notifications room: ${userId}`);
+    console.log(` User ${socket.id} joined notifications room: ${userId}`);
   });
   
   // Join user to a room for targeted updates
   socket.on('join-dashboard', () => {
     socket.join('dashboard');
-    console.log(`📊 User ${socket.id} joined dashboard room`);
+    console.log(` User ${socket.id} joined dashboard room`);
   });
 
   socket.on('join-users', () => {
     socket.join('users');
-    console.log(`👥 User ${socket.id} joined users room`);
+    console.log(` User ${socket.id} joined users room`);
   });
 
   socket.on('join-events', () => {
     socket.join('events');
-    console.log(`🎪 User ${socket.id} joined events room`);
+    console.log(` User ${socket.id} joined events room`);
   });
 
   socket.on('join-bookings', () => {
     socket.join('bookings');
-    console.log(`📅 User ${socket.id} joined bookings room`);
+    console.log(` User ${socket.id} joined bookings room`);
   });
 
   socket.on('disconnect', () => {
-    console.log(`🔌 User disconnected: ${socket.id}`);
+    console.log(` User disconnected: ${socket.id}`);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-  console.log(`🔌 Socket.IO enabled for real-time updates`);
+  console.log(` Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  console.log(` Socket.IO enabled for real-time updates`);
   
   // Start notification services
   startUpcomingEventsChecker();

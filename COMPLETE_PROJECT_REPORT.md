@@ -657,7 +657,6 @@ The EventX Studio project successfully delivers a production-ready event managem
 - `TECHNICAL_DETAILS.md` - Technical implementation details
 - `API_DOCUMENTATION.md` - Complete API reference
 - `USER_MANUAL.md` - User guide and instructions
-- `TESTING_DOCUMENTATION.md` - Testing strategy and results
 
 ### Project Repository
 - **Repository**: Event-Management (VALKAN00)

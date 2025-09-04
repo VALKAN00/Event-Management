@@ -29,13 +29,13 @@ const seedBookingsWithGender = async () => {
     const events = await Event.find({});
     
     if (users.length === 0 || events.length === 0) {
-      console.log('❌ No users or events found. Please seed users and events first.');
+      console.log(' No users or events found. Please seed users and events first.');
       return;
     }
 
     // Clear existing bookings
     await Booking.deleteMany({});
-    console.log('🧹 Cleared existing bookings');
+    console.log(' Cleared existing bookings');
 
     const genders = ['Male', 'Female'];
     const paymentMethods = ['card', 'mobile', 'bank_transfer', 'cash'];
@@ -90,7 +90,7 @@ const seedBookingsWithGender = async () => {
 
     // Insert bookings
     const createdBookings = await Booking.insertMany(sampleBookings);
-    console.log(`✅ Created ${createdBookings.length} sample bookings with gender data`);
+    console.log(` Created ${createdBookings.length} sample bookings with gender data`);
 
     // Display summary
     const genderCounts = sampleBookings.reduce((acc, booking) => {
@@ -99,18 +99,18 @@ const seedBookingsWithGender = async () => {
       return acc;
     }, {});
 
-    console.log('📊 Gender Distribution:');
+    console.log(' Gender Distribution:');
     Object.entries(genderCounts).forEach(([gender, count]) => {
       console.log(`   ${gender}: ${count} bookings`);
     });
 
-    console.log('🎉 Booking seeding with gender data completed successfully!');
+    console.log(' Booking seeding with gender data completed successfully!');
     
   } catch (error) {
-    console.error('❌ Error seeding bookings:', error);
+    console.error(' Error seeding bookings:', error);
   } finally {
     await mongoose.connection.close();
-    console.log('🔌 Database connection closed');
+    console.log(' Database connection closed');
   }
 };
 

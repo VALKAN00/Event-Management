@@ -110,7 +110,7 @@ const seedUsers = async () => {
       if (!existingUser) {
         const user = new User(userData);
         await user.save();
-        console.log(`✅ Created user: ${userData.name} (${userData.email})`);
+        console.log(` Created user: ${userData.name} (${userData.email})`);
       } else {
         // Update existing user's profile details
         await User.findByIdAndUpdate(
@@ -122,17 +122,17 @@ const seedUsers = async () => {
           },
           { new: true }
         );
-        console.log(`🔄 Updated profile for existing user: ${userData.email}`);
+        console.log(` Updated profile for existing user: ${userData.email}`);
       }
     }
 
-    console.log('\n🎉 User seeding completed!');
+    console.log('\n User seeding completed!');
     console.log('\nYou can now log in with:');
-    console.log('📧 admin@eventx.com / Admin123! (Admin)');
-    console.log('📧 john.doe@example.com / User123! (User)');
+    console.log(' admin@eventx.com / Admin123! (Admin)');
+    console.log(' john.doe@example.com / User123! (User)');
     
   } catch (error) {
-    console.error('❌ Error seeding users:', error);
+    console.error(' Error seeding users:', error);
   } finally {
     mongoose.connection.close();
   }

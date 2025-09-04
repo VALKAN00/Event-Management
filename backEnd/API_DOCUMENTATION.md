@@ -5,7 +5,7 @@
 EventX Studio is a comprehensive Event Management Platform API built with Node.js, Express.js, and MongoDB. This API provides complete functionality for event creation, user management, booking system, and analytics dashboard.
 
 ### 🔗 Base Information
-- **Base URL**: `http://localhost:5003/api`
+- **Base URL**: Production:  `https://eventx-studio-api.render.com/api` Development:`http://localhost:5000/api`  
 - **Current Version**: v1.0.0
 - **Database**: MongoDB Atlas
 - **Authentication**: JWT (JSON Web Tokens)

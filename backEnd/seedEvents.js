@@ -163,7 +163,7 @@ const seedData = async () => {
       console.log(`  Sample seats: ${event.seatConfiguration.seatMap.slice(0, 5).map(s => s.seatNumber).join(', ')}...`);
     }
 
-    console.log('\\n✅ Sample events created successfully!');
+    console.log('\\n Sample events created successfully!');
     console.log('Admin login: admin@eventx.com / admin123');
 
   } catch (error) {
