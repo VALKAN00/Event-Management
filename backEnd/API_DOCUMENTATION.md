@@ -5,7 +5,8 @@
 EventX Studio is a comprehensive Event Management Platform API built with Node.js, Express.js, and MongoDB. This API provides complete functionality for event creation, user management, booking system, and analytics dashboard.
 
 ### 🔗 Base Information
-- **Base URL**: Production:  `https://eventx-studio-api.render.com/api` Development:`http://localhost:5000/api`  
+- **Base URL**: Production:  `https://eventx-studio-backend.onrender.com/api` Development:`http://localhost:5000/api`  
+- **Frontend URL**: Production: `https://sage-torrone-27fa1c.netlify.app` Development: `http://localhost:3000`
 - **Current Version**: v1.0.0
 - **Database**: MongoDB Atlas
 - **Authentication**: JWT (JSON Web Tokens)
@@ -719,7 +720,7 @@ JWT_SECRET=your_super_secret_jwt_key
 JWT_EXPIRE=7d
 
 # CORS Configuration
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=https://sage-torrone-27fa1c.netlify.app
 ```
 
 ---
@@ -736,13 +737,13 @@ FRONTEND_URL=http://localhost:3000
 2. **Start Server**:
    ```bash
    npm start
-   # Server will run on http://localhost:5003
+   # Server will run on https://eventx-studio-backend.onrender.com
    ```
 
 3. **Test API**:
    ```bash
    # Health check
-   curl http://localhost:5003/api/health
+   curl https://eventx-studio-backend.onrender.com/api/health
    ```
 
 4. **Import Postman Collection**:
